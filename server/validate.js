@@ -113,6 +113,8 @@ export function cleanSite(input, strict) {
   return {
     home: {
       eyebrow: text(h.eyebrow, 40, '홈 머리글', strict),
+      /* 나중에 생긴 칸: 예전에 저장된 내용에는 없으므로 기본값을 채워 줍니다. */
+      tag: h.tag == null ? 'AI · Vibe Coding' : text(h.tag, 40, '홈 오른쪽 머리글', strict),
       title1: text(h.title1, 60, '홈 제목 첫 줄', strict),
       titleEm: text(h.titleEm, 40, '홈 제목 강조', strict),
       title2: text(h.title2, 60, '홈 제목 끝', strict),

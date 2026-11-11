@@ -10,6 +10,7 @@ const blank = (name, role, lead) => ({
 export const DEFAULT_SITE = {
   home: {
     eyebrow: 'GOJOSEON',
+    tag: 'AI · Vibe Coding',
     title1: '오래된 이름으로,',
     titleEm: '새로운 것을',
     title2: '만듭니다.',

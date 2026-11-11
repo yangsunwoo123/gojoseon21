@@ -1,5 +1,1 @@
-{
-  "version": 1,
-  "include": ["/*"],
-  "exclude": ["/styles.css", "/render.js", "/site.js", "/edit.js", "/login.js", "/favicon.svg"]
-}
+{"version":1,"include":["/*"],"exclude":["/styles.css","/render.js","/site.js","/edit.js","/login.js","/logo.png","/favicon.png","/apple-touch-icon.png"]}

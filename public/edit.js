@@ -285,7 +285,6 @@ function move(arr, i, dir) {
   if (i < 0 || j < 0 || j >= arr.length) return;
   const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
 }
-const TONES = ['ink', 'tint', 'soft'];
 
 async function act(name, arg, checked) {
   const s = draft.site.data;
@@ -309,12 +308,6 @@ async function act(name, arg, checked) {
     case 'proj-move': {
       const [i, dir] = arg.split(',').map(Number);
       move(s.projects, i, dir);
-      break;
-    }
-    case 'proj-tone': {
-      const p = s.projects[+arg];
-      if (!p) return;
-      p.tone = TONES[(TONES.indexOf(p.tone) + 1) % TONES.length];
       break;
     }
     case 'proj-image': {
