@@ -110,12 +110,27 @@ export function cleanSite(input, strict) {
     team.push(id);
   }
 
+  /* 꼬리말의 채널 링크(인스타그램 · 깃허브 · 블로그 등). 빈 줄은 저장하지 않습니다. */
+  const links = [];
+  for (const raw of list(src.links, 8, '채널 링크', strict)) {
+    const l = obj(raw);
+    const label = text(l.label, 24, '채널 링크 이름', strict);
+    const url = link(l.url, '채널 링크 주소', strict);
+    if (!url) {
+      if (label) bad(strict, '채널 링크 ‘' + label + '’의 주소를 입력해 주세요.');
+      continue;
+    }
+    links.push({ label, url });
+  }
+
   /* 홈의 큰 문구는 없앴습니다. 예전에 저장된 home 값이 들어와도 여기서 버려집니다. */
   return {
     projectsSub: text(src.projectsSub, 120, '프로젝트 페이지 소개', strict),
     teamSub: text(src.teamSub, 120, '팀 페이지 소개', strict),
+    teamAbout: text(src.teamAbout, 600, '팀 소개 글', strict, true),
     projects,
     team,
+    links,
     contact: {
       text: text(c.text, 200, '문의 안내 문구', strict),
       email: email(c.email, '문의 이메일', strict),

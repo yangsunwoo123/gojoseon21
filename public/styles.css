@@ -45,7 +45,8 @@ img { display: block; max-width: 100%; }
 }
 .skip:focus { top: 12px; }
 
-.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+/* 좌우 여백만 정합니다. (padding 을 한꺼번에 쓰면 main 의 아래 여백까지 지워져 본문이 꼬리말에 붙습니다) */
+.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
 .ml { white-space: pre-line; }
 
 /* 작은 영문 라벨 */
@@ -185,6 +186,11 @@ button.btn { cursor: pointer; }
 .proj .ed-tools { grid-column: 2 / -1; margin-top: 28px; }
 
 /* ---------- 팀 ---------- */
+/* 팀 소개 글 (적었을 때만 보임): 머리말의 한 줄 소개와 같은 칸(7번째)에서 시작 */
+.team-about {
+  width: calc(50% - 12px); max-width: 30em; margin: -16px 0 64px auto;
+  font-size: 18px; line-height: 1.75; color: var(--ink);
+}
 .team { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 24px; row-gap: 56px; }
 .member { display: block; }
 .portrait { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: var(--bg-soft); }
@@ -325,6 +331,9 @@ a.contact-link:hover { color: var(--accent); }
 .contact-link svg { width: .55em; height: .55em; transition: transform .2s ease; }
 a.contact-link:hover svg { transform: translate(3px, -3px); }
 .contact-row .label { flex: none; }
+/* 홈 맨 끝의 문의 구역: 구역 제목보다 작게 */
+.home .contact-rows { margin-top: 0; }
+.home .contact-link { font-size: clamp(20px, 3.3vw, 44px); }
 
 /* ---------- 로그인 / 계정 ---------- */
 .auth-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 64px; }
@@ -361,9 +370,30 @@ a.contact-link:hover svg { transform: translate(3px, -3px); }
 
 /* ---------- 꼬리말 ---------- */
 .site-footer { border-top: 1px solid var(--line); font-size: 13px; line-height: 1.6; color: var(--ink-3); }
-.site-footer .wrap {
+/* 위: 이름 · 채널 링크 | 메뉴 | 서비스 바로가기 (본문과 같은 12칸 격자, 오른쪽 묶음은 7번째 칸에서 시작) */
+.foot-top {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 40px;
+  padding: 56px 0 52px;
+}
+.foot-brand { grid-column: 1 / 7; min-width: 0; }
+.foot-logo { font-size: 21px; font-weight: 800; letter-spacing: -.035em; line-height: 1.2; color: var(--ink); }
+.foot-col { grid-column: 7 / 9; min-width: 0; }
+.foot-col--wide { grid-column: 9 / -1; }
+.foot-col .label { display: block; margin-bottom: 16px; }
+.foot-col ul { display: grid; gap: 10px; }
+.foot-col a, ul.foot-links a {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+  font-size: 15px; font-weight: 500; line-height: 1.5; letter-spacing: -.01em; color: var(--ink);
+  overflow-wrap: anywhere; transition: color .2s ease;
+}
+.foot-col a:hover, ul.foot-links a:hover, .foot-logo:hover { color: var(--accent); }
+.foot-col a svg, ul.foot-links a svg { flex: none; width: 13px; height: 13px; color: var(--ink-3); transition: transform .2s ease, color .2s ease; }
+.foot-col a:hover svg, ul.foot-links a:hover svg { color: currentColor; transform: translate(2px, -2px); }
+ul.foot-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 20px; }
+/* 아래: 사업자 정보 · 저작권 */
+.foot-bottom {
   display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 40px;
-  padding-top: 28px; padding-bottom: 36px;
+  padding: 24px 0 36px; border-top: 1px solid var(--line);
 }
 .biz { display: flex; flex-wrap: wrap; gap: 2px 20px; }
 .biz b { margin-right: 6px; font-weight: 500; color: var(--ink-2); }
@@ -420,6 +450,11 @@ a.contact-link:hover svg { transform: translate(3px, -3px); }
   .p-sec__body { margin-top: 20px; }
   .contact-head h1 { grid-column: 1 / -1; }
   .contact-rows { margin-top: 64px; }
+  .team-about { width: auto; margin: -8px 0 48px; }
+  .foot-top { padding: 48px 0 44px; }
+  .foot-brand { grid-column: 1 / -1; }
+  .foot-col { grid-column: 1 / 5; }
+  .foot-col--wide { grid-column: 5 / -1; }
   .auth, .auth + .auth, .auth--solo { grid-column: 1 / -1; }
   .notice { margin-top: 48px; }
   .notice .label { margin-bottom: 40px; }
@@ -505,7 +540,9 @@ a.contact-link:hover svg { transform: translate(3px, -3px); }
   .notice { margin-top: 32px; }
   .notice .label { margin-bottom: 28px; }
   .notice p { font-size: 16px; }
-  .site-footer .wrap { padding-top: 24px; padding-bottom: 28px; }
+  .team-about { margin: 0 0 36px; font-size: 16px; }
+  .foot-top { row-gap: 32px; padding: 40px 0 36px; }
+  .foot-bottom { padding: 20px 0 28px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -542,7 +579,7 @@ a.contact-link:hover svg { transform: translate(3px, -3px); }
 .ed-toast[hidden] { display: none; }
 .ed-toast.is-error { color: var(--danger); border-color: var(--danger); }
 /* 아래쪽 고정 막대가 꼬리말을 가리지 않게 */
-body.has-bar .site-footer .wrap { padding-bottom: 104px; }
+body.has-bar .site-footer .wrap { padding-bottom: 68px; }
 
 body.editing [data-e] { outline: 1px dashed #a3a39f; outline-offset: 3px; border-radius: 2px; cursor: text; }
 body.editing [data-e]:hover { outline-color: var(--accent); }
@@ -600,6 +637,15 @@ body.editing .work .cap span { margin-top: 0; overflow-wrap: anywhere; }
 .work .ed-tools { margin-top: 14px; }
 .works > .ed-add { aspect-ratio: 4 / 3; min-height: 0; align-self: start; }
 body.editing .contact-link { min-width: 6em; }
+body.editing .team-about:empty { display: block; }
+/* 꼬리말 채널 링크 편집 */
+.foot-links--edit { margin-top: 24px; font-size: 14.5px; color: var(--ink); }
+.foot-links--edit .label { display: block; margin-bottom: 14px; }
+.foot-links--edit ul { display: grid; gap: 12px; margin-bottom: 14px; }
+.foot-links--edit ul:empty { display: none; }
+.foot-links--edit li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.foot-links--edit li [data-e] { min-width: 7em; overflow-wrap: anywhere; }
+.foot-links--edit li [data-e] + [data-e] { min-width: 11em; color: var(--ink-2); }
 
 /* 확인 · 입력 창 */
 .ed-dialog {
@@ -627,5 +673,5 @@ body.editing .contact-link { min-width: 6em; }
   .ed-note { margin: -20px 0 24px; }
   body.editing .history li { grid-template-columns: 64px minmax(0, 1fr) 28px; }
   body.editing .works { grid-template-columns: minmax(0, 1fr); }
-  body.has-bar .site-footer .wrap { padding-bottom: 92px; }
+  body.has-bar .site-footer .wrap { padding-bottom: 64px; }
 }

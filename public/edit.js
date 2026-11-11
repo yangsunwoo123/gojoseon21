@@ -321,6 +321,18 @@ async function act(name, arg, checked) {
       s.projects[+arg].image = '';
       break;
 
+    /* 꼬리말의 채널 링크 */
+    case 'link-add':
+      s.links = s.links || [];
+      if (s.links.length >= 8) return toast('링크는 8개까지 넣을 수 있습니다.', 'error');
+      s.links.push({ label: '', url: '' });
+      focus = 'site|links.' + (s.links.length - 1) + '.label';
+      break;
+    case 'link-del':
+      if (!s.links || !s.links[+arg]) return;
+      s.links.splice(+arg, 1);
+      break;
+
     /* 팀 */
     case 'member-add': {
       if (s.team.length >= 24) return toast('팀원은 24명까지 넣을 수 있습니다.', 'error');

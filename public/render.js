@@ -94,19 +94,50 @@ function header(view, o) {
     '</div></div></header>';
 }
 
+/* 꼬리말: 위쪽에 이름 · 채널 링크 · 메뉴 · 서비스 바로가기, 아래쪽에 사업자 정보.
+   서비스 목록은 프로젝트에 적힌 바로가기 주소로 저절로 만들어집니다. */
 export function renderFooter(d, o) {
   o = o || {};
-  const b = d.site.biz || {}, c = d.site.contact || {};
+  const s = d.site, b = s.biz || {}, c = s.contact || {}, links = s.links || [];
   const item = (label, key, ph) => ((b[key] || o.edit)
     ? '<li><b>' + label + '</b><span' + E(o, 'site', 'biz.' + key, ph) + '>' + esc(b[key]) + '</span></li>' : '');
-  return '<footer class="site-footer"><div class="wrap"><ul class="biz">' +
+  const ext = (url, text) => '<a href="' + esc(url) + '" target="_blank" rel="noopener" aria-label="' + esc(text) + ' (새 창)">' +
+    esc(text) + I.out + '</a>';
+
+  /* 채널 링크(인스타그램 · 깃허브 · 블로그 등). 이름을 비워 두면 주소를 짧게 줄여 보여 줍니다. */
+  let channels = '';
+  if (o.edit) {
+    channels = '<div class="foot-links foot-links--edit"><span class="label">Links · 인스타그램, 깃허브, 블로그 등</span><ul>' +
+      links.map((l, i) => '<li><span' + E(o, 'site', 'links.' + i + '.label', '이름 (예: Instagram)') + '>' + esc(l.label) + '</span>' +
+        '<span' + E(o, 'site', 'links.' + i + '.url', 'https://…') + '>' + esc(l.url) + '</span>' +
+        edX('link-del', i, '링크 삭제') + '</li>').join('') + '</ul>' +
+      edBtn('＋ 링크 추가', 'link-add') + '</div>';
+  } else {
+    const shown = links.map((l) => ({ url: webUrl(l.url), label: l.label })).filter((l) => l.url);
+    if (shown.length) {
+      channels = '<ul class="foot-links" aria-label="채널">' +
+        shown.map((l) => '<li>' + ext(l.url, l.label || hostOf(l.url)) + '</li>').join('') + '</ul>';
+    }
+  }
+  const services = (s.projects || []).map((p) => ({ name: p.name, url: webUrl(p.url) })).filter((p) => p.name && p.url);
+
+  return '<footer class="site-footer"><div class="wrap">' +
+    '<div class="foot-top">' +
+    '<div class="foot-brand"><a class="foot-logo" href="/">고조선</a>' + channels + '</div>' +
+    '<nav class="foot-col" aria-label="꼬리말 메뉴"><span class="label" aria-hidden="true">Menu</span><ul>' +
+    '<li><a href="/projects">프로젝트</a></li><li><a href="/team">팀</a></li><li><a href="/contact">문의</a></li></ul></nav>' +
+    (services.length ? '<div class="foot-col foot-col--wide"><span class="label" aria-hidden="true">Services</span><ul aria-label="서비스 바로가기">' +
+      services.map((p) => '<li>' + ext(p.url, p.name) + '</li>').join('') + '</ul></div>' : '') +
+    '</div>' +
+    '<div class="foot-bottom"><ul class="biz">' +
     item('상호', 'name', '상호') +
     item('대표', 'ceo', '대표자') +
     item('사업자등록번호', 'regNo', '000-00-00000') +
     item('통신판매업신고', 'mailOrderNo', '신고번호') +
     (c.email ? '<li><b>이메일</b><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a></li>' : '') +
     (c.phone ? '<li><b>전화</b><a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a></li>' : '') +
-    '</ul><span>© ' + new Date().getFullYear() + ' ' + esc(b.name || '고조선') + '. All rights reserved.</span></div></footer>';
+    '</ul><span>© ' + new Date().getFullYear() + ' ' + esc(b.name || '고조선') + '. All rights reserved.</span></div>' +
+    '</div></footer>';
 }
 
 /* ---------- 프로젝트 줄 (홈 · 프로젝트 페이지 공용) ----------
@@ -172,8 +203,8 @@ function memberCards(list, o, opt) {
 
 /* ---------- 홈 ---------- */
 function home(d, o) {
-  const s = d.site, list = teamList(d), look = {};
-  const hasP = s.projects.length > 0, hasT = list.length > 0;
+  const s = d.site, list = teamList(d), look = {}, c = s.contact || {};
+  const hasP = s.projects.length > 0, hasT = list.length > 0, hasC = !!(c.email || c.phone);
   const note = (text, href, label) => (o.edit
     ? '<p class="ed-note">' + text + ' <a href="' + href + '">' + label + '</a>에서 고칩니다.</p>' : '');
 
@@ -192,6 +223,12 @@ function home(d, o) {
       '<p class="more"><a href="/team">팀 소개 보기 ' + I.right + '</a></p></section>' : '') +
 
     (!hasP && !hasT ? '<p class="empty">준비 중입니다. 곧 소개하겠습니다.</p>' : '') +
+
+    /* 맨 끝은 연락처로 마무리합니다. 메뉴의 세 항목(프로젝트 · 팀 · 문의)이 홈에도 같은 순서로 놓입니다. */
+    (hasC ? '<section class="section" aria-labelledby="home-contact">' +
+      head('h2', '03', 'Contact', '문의', c.text ? '<p>' + esc(c.text) + '</p>' : '', '', 'home-contact') +
+      note('문의 문구와 연락처는', '/contact', '문의 페이지') +
+      '<div class="contact-rows">' + contactRows(c, look) + '</div></section>' : '') +
     '</div>';
 }
 
@@ -208,6 +245,8 @@ function projects(d, o) {
 function team(d, o) {
   const s = d.site, list = teamList(d);
   return head('h1', '02', 'Team', '팀', subLine(o, 'teamSub', '팀 페이지 한 줄 소개', s.teamSub), 'sec-head--page') +
+    /* 팀 소개 글: 적어 두었을 때만 보입니다. */
+    ((s.teamAbout || o.edit) ? '<p class="team-about ml"' + E(o, 'site', 'teamAbout', '팀을 두세 문장으로 소개해 주세요. (비워 두면 보이지 않습니다)', true) + '>' + esc(s.teamAbout) + '</p>' : '') +
     '<ul class="team">' + memberCards(list, o, { h: 'h2', quote: true, tools: true }) +
     (o.edit ? '<li><button type="button" class="ed-add" data-act="member-add">＋ 팀원 추가</button></li>' : '') +
     '</ul>';
@@ -323,8 +362,8 @@ function member(d, id, o) {
 }
 
 /* ---------- 문의 ---------- */
-function contact(d, o) {
-  const c = d.site.contact || {};
+/* 이메일 · 전화 줄 (문의 페이지 · 홈 공용) */
+function contactRows(c, o) {
   const row = (en, key, ph, scheme) => {
     if (!c[key] && !o.edit) return '';
     return '<div class="contact-row">' + (o.edit
@@ -332,10 +371,13 @@ function contact(d, o) {
       : '<a class="contact-link" href="' + scheme + esc(c[key]) + '">' + esc(c[key]) + I.out + '</a>') +
       '<span class="label" aria-hidden="true">' + en + '</span></div>';
   };
+  return row('Email', 'email', 'name@example.com', 'mailto:') + row('Phone', 'phone', '010-0000-0000', 'tel:');
+}
+function contact(d, o) {
+  const c = d.site.contact || {};
   return '<div class="sec-head sec-head--page contact-head">' + labels('03', 'Contact') +
     '<h1' + E(o, 'site', 'contact.text', '문의 안내 문구') + '>' + esc(c.text || (o.edit ? '' : '문의')) + '</h1></div>' +
-    '<div class="contact-rows">' +
-    row('Email', 'email', 'name@example.com', 'mailto:') + row('Phone', 'phone', '010-0000-0000', 'tel:') + '</div>';
+    '<div class="contact-rows">' + contactRows(c, o) + '</div>';
 }
 
 /* ---------- 로그인 / 계정 ---------- */
@@ -391,19 +433,69 @@ export function pageTitle(view, d) {
   return (names[view.page] || '페이지를 찾을 수 없습니다') + ' — 고조선';
 }
 
-/* 서버에서 쓰는 전체 문서. o.boot 는 로그인한 팀원에게만 넣는 편집용 데이터(JSON 문자열)입니다. */
+/* ---------- 검색 · 링크 미리보기용 정보 ---------- */
+function oneLine(v, max) {
+  const t = String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
+  return t.length > max ? t.slice(0, max - 1).trimEnd() + '…' : t;
+}
+function pagePath(view) {
+  if (view.page === 'home') return '/';
+  if (view.page === 'member') return '/team/' + view.id;
+  return '/' + view.page;
+}
+/* 페이지마다 다른 한 줄 소개. 지금 사이트에 올라 있는 내용으로만 만듭니다. */
+function pageAbout(view, d) {
+  const s = d.site;
+  const names = (s.projects || []).map((p) => p.name).filter(Boolean);
+  const base = '고조선 팀 홈페이지' + (names.length ? ' — ' + names.join(', ') : '');
+  if (view.page === 'projects' && names.length) return '고조선의 프로젝트 — ' + names.join(', ');
+  if (view.page === 'team') {
+    const people = teamList(d).map((x) => x.m.name).filter(Boolean);
+    return oneLine(s.teamAbout, 150) || (people.length ? '고조선 팀 — ' + people.join(', ') : base);
+  }
+  if (view.page === 'member') {
+    const m = d.members[view.id];
+    if (m) return oneLine(m.bio || m.quote, 150) || oneLine('고조선 ' + (m.role || '') + ' ' + m.name + '의 프로필입니다.', 150);
+  }
+  if (view.page === 'contact') return oneLine((s.contact || {}).text, 150) || base;
+  return base;
+}
+/* 글자 '<' 를 JSON 안에서 안전한 표기로 바꿀 때 씁니다. */
+const LT = '\\' + 'u003c';
+
+/* 서버에서 쓰는 전체 문서. o.boot 는 로그인한 팀원에게만 넣는 편집용 데이터(JSON 문자열)입니다.
+   o.origin (https://도메인) 이 있으면 카카오톡 · 메신저 · SNS 에 주소를 붙였을 때 나오는
+   미리보기(제목 · 소개 · 그림)와 대표 주소를 함께 넣습니다. */
 export function renderDocument(view, d, o) {
   o = o || {};
-  const hidden = view.page === 'login' || view.page === 'notfound';
-  /* 검색 결과에 나오는 한 줄 소개: 지금 사이트에 올라 있는 프로젝트 이름으로 만듭니다. */
-  const names = (d.site.projects || []).map((p) => p.name).filter(Boolean);
-  const about = '고조선 팀 홈페이지' + (names.length ? ' — ' + names.join(', ') : '');
+  const hidden = view.page === 'login' || view.page === 'notfound' || (view.page === 'member' && !d.members[view.id]);
+  const title = pageTitle(view, d), about = pageAbout(view, d);
+  let share = '';
+  if (o.origin && !hidden) {
+    const url = o.origin + pagePath(view), c = d.site.contact || {};
+    const tag = (k, v) => '<meta property="' + k + '" content="' + esc(v) + '">\n';
+    share = '<link rel="canonical" href="' + esc(url) + '">\n' +
+      tag('og:type', view.page === 'member' ? 'profile' : 'website') +
+      tag('og:site_name', '고조선') + tag('og:locale', 'ko_KR') +
+      tag('og:title', title) + tag('og:description', about) + tag('og:url', url) +
+      tag('og:image', o.origin + '/og.png') + tag('og:image:width', '1200') + tag('og:image:height', '630') +
+      tag('og:image:alt', '고조선') +
+      '<meta name="twitter:card" content="summary_large_image">\n';
+    if (view.page === 'home') {
+      const org = { '@context': 'https://schema.org', '@type': 'Organization', name: '고조선', url: o.origin + '/', logo: o.origin + '/logo.png' };
+      if (c.email) org.email = c.email;
+      if (c.phone) org.telephone = c.phone;
+      const sameAs = (d.site.links || []).map((l) => webUrl(l.url)).filter(Boolean);
+      if (sameAs.length) org.sameAs = sameAs;
+      share += '<script type="application/ld+json">' + JSON.stringify(org).replace(/</g, LT) + '</script>\n';
+    }
+  }
   return '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-    '<title>' + esc(pageTitle(view, d)) + '</title>\n' +
+    '<title>' + esc(title) + '</title>\n' +
     '<meta name="description" content="' + esc(about) + '">\n' +
     '<meta name="theme-color" content="#ffffff">\n' +
-    (hidden ? '<meta name="robots" content="noindex">\n' : '') +
+    (hidden ? '<meta name="robots" content="noindex">\n' : '') + share +
     '<link rel="icon" href="/favicon.png" type="image/png">\n' +
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
     '<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>\n' +

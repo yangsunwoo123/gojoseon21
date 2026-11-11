@@ -4,6 +4,11 @@ import { loadAll } from './store.js';
 import { getUser } from './auth.js';
 import { securityHeaders } from './http.js';
 
+export function siteOrigin(request, env) {
+  const fixed = typeof env.SITE_ORIGIN === 'string' ? env.SITE_ORIGIN.trim().replace(/\/+$/, '') : '';
+  return /^https:\/\/[a-z0-9.-]+$/i.test(fixed) ? fixed : new URL(request.url).origin;
+}
+
 export async function servePage(ctx, view) {
   const { request, env } = ctx;
   const [all, user] = await Promise.all([loadAll(env.DB), getUser(request, env.DB)]);
@@ -27,7 +32,10 @@ export async function servePage(ctx, view) {
     }).replace(/</g, '\\u003c');
   }
 
-  const html = renderDocument(view, data, { user: user ? { name: user.name } : null, boot });
+  /* 링크 미리보기 · 대표 주소에 쓸 사이트 주소. 나중에 자체 도메인을 붙이면
+     Cloudflare 환경 변수 SITE_ORIGIN (예: https://example.com) 으로 고정할 수 있습니다. */
+  const origin = siteOrigin(request, env);
+  const html = renderDocument(view, data, { user: user ? { name: user.name } : null, boot, origin });
   const headers = Object.assign(securityHeaders(request), {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': user || view.page === 'login' ? 'private, no-store' : 'no-cache',
