@@ -13,12 +13,12 @@ export const DEFAULT_SITE = {
   projects: [
     {
       id: 'academy', label: '교육', name: '고조선 바이브코딩 아카데미',
-      desc: '코드를 몰라도 괜찮습니다. AI와 대화하며 아이디어를 실제 서비스로 만드는 바이브코딩 교육 과정입니다.',
+      desc: '코딩을 몰라도 시작할 수 있는 바이브코딩 강의입니다. 가입 없이 2분 레벨 테스트로 내 수준을 찾고, 5개 트랙 56개 레슨을 직접 따라 하며 첫 앱 배포부터 AI 에이전트 팀까지 배웁니다.',
       url: 'https://vibecoding-training.pages.dev/', image: '', art: 'academy', tone: 'ink'
     },
     {
       id: 'kids', label: '키즈 · 아트', name: '키즈아트버스',
-      desc: '아이들의 그림이 작품이 되고 세계가 되는 곳. 어린이를 위한 온라인 아트 공간입니다.',
+      desc: '아이가 그린 그림 한 장을 AI로 예쁜 작품으로 바꿔, 키링·티셔츠·폰케이스 같은 세상에 하나뿐인 굿즈로 남기는 어린이 창작 플랫폼입니다. 굿즈 시안은 무료로 만들어 볼 수 있습니다.',
       url: 'https://kidsartverse.store/', image: '', art: 'kids', tone: 'tint'
     }
   ],

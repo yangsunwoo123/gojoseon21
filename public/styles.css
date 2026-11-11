@@ -156,8 +156,14 @@ button.btn { cursor: pointer; }
 .proj--link h2 a::after, .proj--link h3 a::after { content: ""; position: absolute; inset: 0; }
 .proj--link h2 a:focus-visible, .proj--link h3 a:focus-visible { outline: 0; }
 .proj--link h2 a:focus-visible::after, .proj--link h3 a:focus-visible::after { outline: 2px solid var(--accent); outline-offset: -2px; }
-.proj__img { margin-top: 28px; max-width: 440px; aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-soft); }
-.proj__img img { width: 100%; height: 100%; object-fit: cover; }
+/* 프로젝트 그림(사이트 화면). 넓은 화면에서는 글 오른쪽에, 좁은 화면에서는 제목 아래에 놓입니다. */
+.proj__img {
+  position: relative; grid-column: 2 / -1; margin-top: 28px;
+  aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-soft);
+}
+.proj__img::after { content: ""; position: absolute; inset: 0; border: 1px solid rgba(17, 17, 17, .08); pointer-events: none; }
+.proj__img img { width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform .5s ease; }
+.proj--link:hover .proj__img img { transform: scale(1.015); }
 .proj__desc { grid-column: 7 / 11; padding-top: 34px; font-size: 17px; line-height: 1.75; color: var(--ink-2); text-wrap: pretty; }
 .proj__link {
   grid-column: 11 / -1; padding-top: 38px;
@@ -379,6 +385,20 @@ a.contact-link:hover svg { transform: translate(3px, -3px); }
   .p-sec__title { grid-column: 1 / 4; }
   .p-sec__body { grid-column: 4 / -1; }
 }
+/* 그림이 있는 프로젝트 줄: 왼쪽에 분류·이름·소개·바로가기, 오른쪽에 그림 */
+@media (min-width: 861px) {
+  .proj.proj--media { grid-template-rows: auto auto 1fr; }
+  .proj.proj--media .proj__no { grid-row: 1; }
+  .proj.proj--media .proj__main { grid-column: 2 / 7; grid-row: 1; }
+  .proj.proj--media .proj__desc { grid-column: 2 / 7; grid-row: 2; max-width: 27em; margin-top: 20px; padding-top: 0; }
+  .proj.proj--media .proj__link {
+    grid-column: 2 / 7; grid-row: 3; align-self: end; margin-top: 0; padding-top: 32px;
+    flex-direction: row; align-items: baseline; justify-content: flex-start; gap: 14px; text-align: left;
+  }
+  .proj.proj--media .proj__link--edit { flex-direction: column; align-items: stretch; gap: 8px; }
+  .proj.proj--media .proj__img { grid-column: 7 / -1; grid-row: 1 / 4; margin-top: 0; }
+  .proj.proj--media .ed-tools { grid-row: 4; }
+}
 @media (max-width: 860px) {
   :root { --gutter: 32px; }
   main { padding-bottom: 104px; }
@@ -441,7 +461,8 @@ a.contact-link:hover svg { transform: translate(3px, -3px); }
   .proj { display: block; padding: 28px 0 30px; }
   .proj__no { display: block; margin-bottom: 14px; padding-top: 0; }
   .proj__cat { margin-bottom: 8px; }
-  .proj__img { margin-top: 20px; max-width: none; }
+  .proj__img { margin-top: 20px; }
+  .proj--media .proj__desc { margin-top: 18px; }
   .proj__desc, .proj--nocat .proj__desc { margin-top: 12px; font-size: 16px; line-height: 1.7; }
   .proj__link, .proj--nocat .proj__link { margin-top: 20px; }
   .proj .ed-tools { margin-top: 20px; }

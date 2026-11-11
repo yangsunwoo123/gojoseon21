@@ -110,7 +110,8 @@ export function renderFooter(d, o) {
 }
 
 /* ---------- 프로젝트 줄 (홈 · 프로젝트 페이지 공용) ----------
-   opt.h: 제목 태그, opt.img: 올린 그림 보이기, opt.tools: 편집 버튼, opt.ids: 줄마다 id 달기 */
+   opt.h: 제목 태그, opt.img: 올린 그림 보이기, opt.tools: 편집 버튼, opt.ids: 줄마다 id 달기
+   그림이 있는 줄(proj--media)은 왼쪽에 글, 오른쪽에 그림이 놓입니다. */
 function projRows(s, o, opt) {
   const n = s.projects.length, H = opt.h || 'h2';
   return s.projects.map((p, i) => {
@@ -134,7 +135,7 @@ function projRows(s, o, opt) {
       edBtn('↑', 'proj-move', i + ',-1', 'ed-btn--icon', ' aria-label="위로 옮기기"' + (i === 0 ? ' disabled' : '')) +
       edBtn('↓', 'proj-move', i + ',1', 'ed-btn--icon', ' aria-label="아래로 옮기기"' + (i === n - 1 ? ' disabled' : '')) +
       edBtn('삭제', 'proj-del', i, 'ed-btn--danger') + '</div>' : '';
-    return '<article class="proj' + (linked ? ' proj--link' : '') + ((p.label || o.edit) ? '' : ' proj--nocat') + '"' +
+    return '<article class="proj' + (linked ? ' proj--link' : '') + (img ? ' proj--media' : '') + ((p.label || o.edit) ? '' : ' proj--nocat') + '"' +
       (opt.ids ? ' id="' + esc(p.id) + '"' : '') + '>' +
       '<span class="proj__no label" aria-hidden="true">' + num(i) + '</span>' +
       '<div class="proj__main">' +
@@ -143,9 +144,9 @@ function projRows(s, o, opt) {
       (linked
         ? '<a href="' + esc(url) + '" target="_blank" rel="noopener" aria-label="' + esc(p.name) + ' 바로가기 (' + esc(host) + ', 새 창)">' + esc(p.name) + '</a>'
         : esc(p.name)) +
-      '</' + H + '>' +
-      (img ? '<div class="proj__img"><img src="' + img + '" alt="" loading="lazy"></div>' : '') +
-      '</div>' +
+      '</' + H + '></div>' +
+      (img ? '<div class="proj__img"><img src="' + img + '" alt="' + esc(p.name) + ' 화면"' +
+        (i ? ' loading="lazy"' : '') + ' decoding="async"></div>' : '') +
       ((p.desc || o.edit) ? '<p class="proj__desc ml"' + E(o, 'site', doc + 'desc', '프로젝트를 한두 문장으로 소개해 주세요.', true) + '>' + esc(p.desc) + '</p>' : '') +
       link + tools + '</article>';
   }).join('');
@@ -181,7 +182,7 @@ function home(d, o) {
     (hasP ? '<section class="section" aria-labelledby="home-projects">' +
       head('h2', '01', 'Projects', '프로젝트', subLine(o, 'projectsSub', '프로젝트 한 줄 소개', s.projectsSub), 'sec-head--page', 'home-projects') +
       note('프로젝트 목록은', '/projects', '프로젝트 페이지') +
-      '<div class="projects">' + projRows(s, look, { h: 'h3' }) + '</div>' +
+      '<div class="projects">' + projRows(s, look, { h: 'h3', img: true }) + '</div>' +
       '<p class="more"><a href="/projects">프로젝트 전체 보기 ' + I.right + '</a></p></section>' : '') +
 
     (hasT ? '<section class="section" aria-labelledby="home-team">' +
