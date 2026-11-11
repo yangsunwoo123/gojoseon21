@@ -1,0 +1,10 @@
+# Cloudflare Pages 설정
+name = "gojoseon21"
+pages_build_output_dir = "public"
+compatibility_date = "2026-05-01"
+
+# 사이트 내용·계정·사진을 담는 D1 데이터베이스
+[[d1_databases]]
+binding = "DB"
+database_name = "gojoseon"
+database_id = "f4eb54ec-2c9d-460f-91d2-48091a3dd213"

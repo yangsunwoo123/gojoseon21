@@ -1,0 +1,8 @@
+# 로컬 개발용 데이터(로컬 DB 포함)와 설치 파일 — 저장소에 올리지 않습니다
+.wrangler/
+node_modules/
+.dev.vars
+*.log
+
+# 디자인 시안(고르기 전 후보들) — 내 컴퓨터에만 둡니다
+design-preview/

@@ -1,0 +1,12 @@
+{
+  "name": "gojoseon21",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx wrangler@4 pages dev --port 8788",
+    "db:init": "npx wrangler@4 d1 execute gojoseon --local --file=schema.sql",
+    "db:init:remote": "npx wrangler@4 d1 execute gojoseon --remote --file=schema.sql --yes",
+    "users": "node scripts/users.mjs",
+    "deploy": "npx wrangler@4 pages deploy"
+  }
+}
