@@ -171,38 +171,26 @@ function memberCards(list, o, opt) {
 
 /* ---------- 홈 ---------- */
 function home(d, o) {
-  const s = d.site, h = s.home || {}, list = teamList(d), look = {};
-  /* 방문자에게는 제목 끝의 마침표를 포인트 색으로 보여 줍니다. */
-  const t2 = String(h.title2 || '');
-  const dot = !o.edit && /\.$/.test(t2);
-  const meta = (h.eyebrow || h.tag || o.edit) ? '<div class="hero-meta label">' +
-    '<span' + E(o, 'site', 'home.eyebrow', '왼쪽 머리글') + '>' + esc(h.eyebrow) + '</span>' +
-    '<span' + E(o, 'site', 'home.tag', '오른쪽 머리글') + '>' + esc(h.tag) + '</span></div>' : '';
+  const s = d.site, list = teamList(d), look = {};
+  const hasP = s.projects.length > 0, hasT = list.length > 0;
   const note = (text, href, label) => (o.edit
     ? '<p class="ed-note">' + text + ' <a href="' + href + '">' + label + '</a>에서 고칩니다.</p>' : '');
 
-  return '<div class="home">' +
-    '<section class="hero" aria-labelledby="hero-title">' + meta +
-    '<h1 id="hero-title">' +
-    '<span class="line"><span' + E(o, 'site', 'home.title1', '제목 첫 줄') + '>' + esc(h.title1) + '</span></span>' +
-    '<span class="line"><span' + E(o, 'site', 'home.titleEm', '제목 둘째 줄') + '>' + esc(h.titleEm) + '</span> ' +
-    '<span' + E(o, 'site', 'home.title2', '제목 끝') + '>' + (dot ? esc(t2.slice(0, -1)) + '<span class="dot">.</span>' : esc(t2)) + '</span></span></h1>' +
-    '<div class="hero-foot">' +
-    '<p class="hero-sub ml"' + E(o, 'site', 'home.sub', '팀을 한두 문장으로 소개해 주세요.', true) + '>' + esc(h.sub) + '</p>' +
-    '<div class="hero-actions"><a class="btn btn--primary" href="/projects">프로젝트 보기 ' + I.right + '</a>' +
-    '<a class="btn btn--ghost" href="/team">팀 소개</a></div></div></section>' +
-
-    (s.projects.length ? '<section class="section" aria-labelledby="home-projects">' +
-      head('h2', '01', 'Projects', '프로젝트', subLine(o, 'projectsSub', '프로젝트 한 줄 소개', s.projectsSub), '', 'home-projects') +
+  /* 큰 문구 없이 목차(01 프로젝트, 02 팀)부터 바로 시작합니다. 맨 위 구역에만 위 여백을 줍니다. */
+  return '<div class="home"><h1 class="sr-only">고조선</h1>' +
+    (hasP ? '<section class="section" aria-labelledby="home-projects">' +
+      head('h2', '01', 'Projects', '프로젝트', subLine(o, 'projectsSub', '프로젝트 한 줄 소개', s.projectsSub), 'sec-head--page', 'home-projects') +
       note('프로젝트 목록은', '/projects', '프로젝트 페이지') +
       '<div class="projects">' + projRows(s, look, { h: 'h3' }) + '</div>' +
       '<p class="more"><a href="/projects">프로젝트 전체 보기 ' + I.right + '</a></p></section>' : '') +
 
-    (list.length ? '<section class="section" aria-labelledby="home-team">' +
-      head('h2', '02', 'Team', '팀', subLine(o, 'teamSub', '팀 한 줄 소개', s.teamSub), '', 'home-team') +
+    (hasT ? '<section class="section" aria-labelledby="home-team">' +
+      head('h2', '02', 'Team', '팀', subLine(o, 'teamSub', '팀 한 줄 소개', s.teamSub), hasP ? '' : 'sec-head--page', 'home-team') +
       note('팀원 목록과 프로필은', '/team', '팀 페이지') +
       '<ul class="team">' + memberCards(list, look, { h: 'h3' }) + '</ul>' +
       '<p class="more"><a href="/team">팀 소개 보기 ' + I.right + '</a></p></section>' : '') +
+
+    (!hasP && !hasT ? '<p class="empty">준비 중입니다. 곧 소개하겠습니다.</p>' : '') +
     '</div>';
 }
 
@@ -406,10 +394,13 @@ export function pageTitle(view, d) {
 export function renderDocument(view, d, o) {
   o = o || {};
   const hidden = view.page === 'login' || view.page === 'notfound';
+  /* 검색 결과에 나오는 한 줄 소개: 지금 사이트에 올라 있는 프로젝트 이름으로 만듭니다. */
+  const names = (d.site.projects || []).map((p) => p.name).filter(Boolean);
+  const about = '고조선 팀 홈페이지' + (names.length ? ' — ' + names.join(', ') : '');
   return '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
     '<title>' + esc(pageTitle(view, d)) + '</title>\n' +
-    '<meta name="description" content="' + esc((d.site.home || {}).sub || '고조선') + '">\n' +
+    '<meta name="description" content="' + esc(about) + '">\n' +
     '<meta name="theme-color" content="#ffffff">\n' +
     (hidden ? '<meta name="robots" content="noindex">\n' : '') +
     '<link rel="icon" href="/favicon.png" type="image/png">\n' +

@@ -131,19 +131,12 @@ button.btn { cursor: pointer; }
 .empty { padding: 56px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 18px; color: var(--ink-2); }
 
 /* ---------- 홈 ---------- */
-.hero { padding: 112px 0 136px; }
-.hero-meta { display: flex; justify-content: space-between; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--ink); margin-bottom: 72px; }
-.hero h1 { font-size: clamp(40px, 8.6vw, 128px); font-weight: 700; line-height: 1.12; letter-spacing: -.045em; text-wrap: wrap; }
-.hero h1 .line { display: block; }
-.dot { color: var(--accent); }
-.hero-foot {
-  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: end; margin-top: 88px;
+/* 화면에는 안 보이고 화면 낭독기에만 읽히는 글 (홈의 페이지 제목) */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
 }
-.hero-sub {
-  grid-column: 1 / 7; max-width: 22em;
-  font-size: clamp(18px, 1.7vw, 24px); font-weight: 500; line-height: 1.6; letter-spacing: -.02em; text-wrap: pretty;
-}
-.hero-actions { grid-column: 8 / -1; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; }
+.home > .empty { margin-top: 72px; }
 
 /* ---------- 프로젝트 ---------- */
 .projects { border-top: 1px solid var(--line); }
@@ -389,11 +382,6 @@ a.contact-link:hover svg { transform: translate(3px, -3px); }
 @media (max-width: 860px) {
   :root { --gutter: 32px; }
   main { padding-bottom: 104px; }
-  .hero { padding: 80px 0 104px; }
-  .hero-meta { margin-bottom: 56px; }
-  .hero-foot { margin-top: 56px; row-gap: 40px; }
-  .hero-sub, .hero-actions { grid-column: 1 / -1; }
-  .hero-actions { justify-content: flex-start; }
   .section + .section { margin-top: 104px; }
   .sec-head { margin-bottom: 48px; }
   .sec-head > .label { margin-bottom: 40px; }
@@ -442,11 +430,6 @@ a.contact-link:hover svg { transform: translate(3px, -3px); }
   .logo { gap: 10px; font-size: 19px; }
   .logo img { height: 40px; }
   .btn { height: 52px; padding: 0 22px; font-size: 15.5px; }
-  .hero { padding: 48px 0 80px; }
-  .hero-meta { padding-bottom: 16px; margin-bottom: 40px; }
-  .hero h1 { font-size: clamp(30px, 9vw, 50px); line-height: 1.18; }
-  .hero-foot { margin-top: 36px; row-gap: 32px; }
-  .hero-actions .btn { flex: 1; }
   .section + .section { margin-top: 80px; }
   .sec-head { padding-top: 16px; margin-bottom: 36px; }
   .sec-head > .label { margin-bottom: 28px; }
@@ -546,7 +529,6 @@ body.editing [data-e]:focus { outline: 2px solid var(--accent); }
 body.editing [data-e]:empty { display: inline-block; min-width: 4em; }
 body.editing [data-e]:empty::before { content: attr(data-ph); color: var(--ink-3); font-weight: 500; }
 body.editing [data-ml] { white-space: pre-wrap; }
-body.editing .hero h1 [data-e] { outline-offset: 0; }
 
 .ed-note { margin: -36px 0 28px; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
 .ed-note a { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }

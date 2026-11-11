@@ -82,7 +82,7 @@ export function cleanSite(input, strict) {
   if (strict && (!input || typeof input !== 'object' || Array.isArray(input))) {
     throw new ValidationError('저장할 내용이 올바르지 않습니다.');
   }
-  const src = obj(input), h = obj(src.home), c = obj(src.contact), b = obj(src.biz);
+  const src = obj(input), c = obj(src.contact), b = obj(src.biz);
 
   const projects = [];
   const seen = new Set();
@@ -110,16 +110,8 @@ export function cleanSite(input, strict) {
     team.push(id);
   }
 
+  /* 홈의 큰 문구는 없앴습니다. 예전에 저장된 home 값이 들어와도 여기서 버려집니다. */
   return {
-    home: {
-      eyebrow: text(h.eyebrow, 40, '홈 머리글', strict),
-      /* 나중에 생긴 칸: 예전에 저장된 내용에는 없으므로 기본값을 채워 줍니다. */
-      tag: h.tag == null ? 'AI · Vibe Coding' : text(h.tag, 40, '홈 오른쪽 머리글', strict),
-      title1: text(h.title1, 60, '홈 제목 첫 줄', strict),
-      titleEm: text(h.titleEm, 40, '홈 제목 강조', strict),
-      title2: text(h.title2, 60, '홈 제목 끝', strict),
-      sub: text(h.sub, 300, '홈 소개 문장', strict, true)
-    },
     projectsSub: text(src.projectsSub, 120, '프로젝트 페이지 소개', strict),
     teamSub: text(src.teamSub, 120, '팀 페이지 소개', strict),
     projects,

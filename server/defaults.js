@@ -8,14 +8,6 @@ const blank = (name, role, lead) => ({
 });
 
 export const DEFAULT_SITE = {
-  home: {
-    eyebrow: 'GOJOSEON',
-    tag: 'AI · Vibe Coding',
-    title1: '오래된 이름으로,',
-    titleEm: '새로운 것을',
-    title2: '만듭니다.',
-    sub: '고조선은 AI와 바이브코딩으로 교육과 창작의 새로운 방식을 만드는 팀입니다.'
-  },
   projectsSub: '고조선이 만들고 운영하는 서비스',
   teamSub: '고조선을 만드는 사람들',
   projects: [
