@@ -89,14 +89,46 @@ function insta(v, label, strict) {
   return s;
 }
 
-/* 시기. '2026.9', '2026-09', '2026/9', '2026년9월' 처럼 적어도 '2026년 9월' 로 맞춥니다.
-   연도만 적었거나 기간처럼 다른 모양이면 적은 그대로 둡니다. */
+/* 시기. '2026.9', '2026-09', '2026/9', '2026년 9월' 처럼 적어도 '2026.09' 로 맞춥니다.
+   기간은 '2026.09 - 2026.10' 으로 맞춥니다. ('~' 로 이어 적어도 되고, 끝은 '현재' 처럼 글자로 적거나 비워도 됩니다.)
+   연도만 적었거나 다른 모양이면 적은 그대로 둡니다. */
+const WHEN_ONE = /^(\d{4})\s*(?:년|[.\/-])\s*(\d{1,2})\s*(?:월|\.)?$/;
+const WHEN_RANGE = /^(\d{4})\s*(?:년|[.\/-])\s*(\d{1,2})\s*(?:월|\.)?\s*(?:-|~|–|—|부터)\s*(.*)$/;
+function yearMonth(y, m) {
+  const month = +m;
+  return month >= 1 && month <= 12 ? y + '.' + String(month).padStart(2, '0') : '';
+}
 function when(v, label, strict) {
   const s = text(v, 30, label, strict);
-  const m = /^(\d{4})\s*(?:년|[.\/-])\s*(\d{1,2})\s*(?:월|\.)?$/.exec(s);
-  if (!m) return s;
-  const month = +m[2];
-  return month >= 1 && month <= 12 ? m[1] + '년 ' + month + '월' : s;
+  let m = WHEN_ONE.exec(s);
+  if (m) return yearMonth(m[1], m[2]) || s;
+  m = WHEN_RANGE.exec(s);
+  const from = m ? yearMonth(m[1], m[2]) : '';
+  if (!from) return s;
+  const rest = m[3].trim();
+  const end = WHEN_ONE.exec(rest);
+  if (end) {
+    const to = yearMonth(end[1], end[2]);
+    return to ? from + ' - ' + to : s;
+  }
+  /* 끝을 비웠거나 '현재' 처럼 숫자 없는 짧은 글로 적은 경우 */
+  return /^\D{0,10}$/.test(rest) ? (from + ' - ' + rest).trim() : s;
+}
+
+/* '이름 + 주소' 줄의 목록 (꼬리말의 채널 링크, 팀원 프로필의 링크). 주소가 없는 줄은 저장하지 않습니다. */
+function linkRows(v, what, strict) {
+  const rows = [];
+  for (const raw of list(v, 8, what, strict)) {
+    const l = obj(raw);
+    const label = text(l.label, 24, what + ' 이름', strict);
+    const url = link(l.url, what + ' 주소', strict);
+    if (!url) {
+      if (label) bad(strict, what + ' ‘' + label + '’의 주소를 입력해 주세요.');
+      continue;
+    }
+    rows.push({ label, url });
+  }
+  return rows;
 }
 
 /* 이력, 수상 · 자격증에 쓰는 '시기 + 내용' 줄의 목록.
@@ -144,18 +176,8 @@ export function cleanSite(input, strict) {
     team.push(id);
   }
 
-  /* 꼬리말의 채널 링크(인스타그램 · 깃허브 · 블로그 등). 빈 줄은 저장하지 않습니다. */
-  const links = [];
-  for (const raw of list(src.links, 8, '채널 링크', strict)) {
-    const l = obj(raw);
-    const label = text(l.label, 24, '채널 링크 이름', strict);
-    const url = link(l.url, '채널 링크 주소', strict);
-    if (!url) {
-      if (label) bad(strict, '채널 링크 ‘' + label + '’의 주소를 입력해 주세요.');
-      continue;
-    }
-    links.push({ label, url });
-  }
+  /* 꼬리말의 채널 링크(인스타그램 · 깃허브 · 블로그 등). */
+  const links = linkRows(src.links, '채널 링크', strict);
 
   /* 홈의 큰 문구, 제목 옆 한 줄 소개(projectsSub · teamSub), 문의 안내 문구(contact.text)는 없앴습니다.
      예전에 저장된 값이 들어와도 여기서 버려집니다. */
@@ -219,6 +241,12 @@ export function cleanMember(input, strict) {
     works.push(w);
   }
 
+  /* 링크(노션 · 블로그 · 깃허브 등) 여러 개. 예전에는 주소 하나(link)만 적을 수 있었습니다.
+     그때 저장된 주소가 들어오면 목록의 한 줄로 옮깁니다. */
+  const links = linkRows(src.links, '링크', strict);
+  const old = link(src.link, '링크', strict);
+  if (old && links.length < 8 && !links.some((l) => l.url === old)) links.push({ label: '', url: old });
+
   return {
     name,
     role: text(src.role, 40, '직함', strict),
@@ -226,7 +254,7 @@ export function cleanMember(input, strict) {
     quote: text(src.quote, 120, '한마디', strict),
     photo: media(src.photo, '사진', strict),
     email: email(src.email, '이메일', strict),
-    link: link(src.link, '링크', strict),
+    links,
     bio: text(src.bio, 1200, '소개', strict, true),
     skills, history, awards, projects, works
   };

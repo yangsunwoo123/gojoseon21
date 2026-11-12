@@ -5,6 +5,8 @@
    d = { site, members }   site: 사이트 공통 내용, members: { 팀원id: 프로필 }
    o = { edit, user }      edit 가 true 면 편집용 표시(data-e, 추가/삭제 버튼)를 함께 그립니다. */
 
+import { BRANDS } from './brands.js';
+
 export function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
@@ -27,6 +29,34 @@ function hostOf(u) {
   } catch (e) { return ''; }
 }
 
+/* 프로필 링크. 주소를 보고 어떤 서비스인지 알아봅니다. (서비스 목록과 로고는 brands.js)
+   아는 서비스는 로고로, 그 밖의 링크는 적어 넣은 이름(비워 두면 주소의 도메인)을 글자로 보여 줍니다. */
+function linkHost(u) {
+  let s = String(u || '').trim();
+  if (!s) return '';
+  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+  try {
+    const host = new URL(s).hostname.toLowerCase().replace(/^www\./, '');
+    return host.includes('.') ? host : '';
+  } catch (e) { return ''; }
+}
+function brandOf(u) {
+  const host = linkHost(u);
+  return (host && BRANDS.find((b) => b[1].test(host))) || null;
+}
+export function linkName(u) {
+  const b = brandOf(u);
+  return b ? b[0] : linkHost(u);
+}
+export function linkLogo(u) {
+  const b = brandOf(u);
+  return b && b[2] ? '<svg class="brand" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="' + b[2] + '"/></svg>' : '';
+}
+/* 편집 화면의 이름 칸에 흐리게 보이는 안내: 로고가 있는 서비스는 이름이 선택 사항, 그 밖에는 저절로 붙을 이름 */
+export function linkHint(u) {
+  return linkLogo(u) ? '이름 (선택)' : (linkName(u) || '이름');
+}
+
 /* 편집 가능한 글자 표시: data-e="문서|경로" */
 function E(o, doc, path, ph, multi) {
   if (!o.edit) return '';
@@ -37,7 +67,6 @@ const I = {
   right: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.6"/></svg>',
   left: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.5 8h-11M7 3.5 2.5 8 7 12.5" stroke="currentColor" stroke-width="1.6"/></svg>',
   out: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 13 13 5M6 5h7v7" stroke="currentColor" stroke-width="1.6"/></svg>',
-  link: '<svg width="20" height="20" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M7.5 10.5a3.2 3.2 0 0 0 4.5 0l2.6-2.6a3.2 3.2 0 0 0-4.5-4.5l-.9.9M10.5 7.5a3.2 3.2 0 0 0-4.5 0l-2.6 2.6a3.2 3.2 0 0 0 4.5 4.5l.9-.9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   image: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="5.75" y="8.75" width="28.5" height="22.5" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="16" r="2.5" fill="currentColor"/><path d="M6 28l8.5-8 5.5 5 4.5-4.5L34 30" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
   user: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="7" r="3.4" stroke="currentColor" stroke-width="1.5"/><path d="M3.6 17c.7-3 3.2-4.8 6.4-4.8s5.7 1.8 6.4 4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   bars: '<svg class="bars" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M3 7.5h16M3 14.5h16" stroke="currentColor" stroke-width="1.6"/></svg>',
@@ -261,8 +290,8 @@ function member(d, id, o) {
   if (i < 0) return notFound('팀원을 찾을 수 없습니다.', '주소가 올바르지 않거나 삭제된 프로필입니다. 팀 페이지에서 다시 선택해 주세요.', '/team', '팀으로 돌아가기');
   const m = list[i].m, doc = 'member:' + id, ed = !!o.edit;
   const skills = m.skills || [], history = m.history || [], awards = m.awards || [], works = m.works || [], joined = m.projects || [];
-  const link = webUrl(m.link);
-  const sec = (cls, title, body) => '<section class="p-sec ' + cls + '" aria-label="' + title + '">' +
+  const links = m.links || [];
+  const sec =(cls, title, body) => '<section class="p-sec ' + cls + '" aria-label="' + title + '">' +
     '<h2 class="p-sec__title">' + title + '</h2><div class="p-sec__body">' + body + '</div></section>';
 
   let h = '<div class="profile">' +
@@ -277,15 +306,39 @@ function member(d, id, o) {
     '<p class="p-role"><span' + (m.lead ? ' class="lead-label"' : '') + E(o, doc, 'role', '직함') + '>' + esc(m.role) + '</span></p>' +
     (ed ? '<label class="ed-check"><input type="checkbox" data-act="lead"' + (m.lead ? ' checked' : '') + '> 팀장으로 표시</label>' : '') +
     ((m.quote || ed) ? '<blockquote class="p-quote"' + E(o, doc, 'quote', '한마디를 적어 주세요.') + '>' + esc(m.quote) + '</blockquote>' : '');
+  /* 이메일 + 링크(노션 · 블로그 · 깃허브 등) 여러 개.
+     이메일은 'e-mail' 뒤에 밑줄 친 주소로 보여 주고, 누르면 주소가 복사됩니다. (site.js)
+     링크는 주소를 보여 주지 않습니다. 아는 서비스(노션 · 네이버 블로그 · 티스토리 · 깃허브 …)는 로고로,
+     그 밖의 링크는 적어 넣은 이름으로 보여 주고, 누르면 그 페이지가 새 창으로 열립니다. 로고가 앞에, 글자 링크가 뒤에 옵니다. */
   if (ed) {
     h += '<div class="p-links">' +
       '<div class="ed-field"><b>이메일</b><span' + E(o, doc, 'email', 'name@example.com') + '>' + esc(m.email) + '</span></div>' +
-      '<div class="ed-field"><b>링크</b><span' + E(o, doc, 'link', '깃허브·블로그 등 주소 (https://…)') + '>' + esc(m.link) + '</span></div></div>';
-  } else if (m.email || link) {
-    h += '<div class="p-links">' +
-      (m.email ? '<a class="btn btn--primary" href="mailto:' + esc(m.email) + '">' + esc(m.email) + '</a>' : '') +
-      (link ? '<a class="icon-btn" href="' + esc(link) + '" target="_blank" rel="noopener" aria-label="' + esc(m.name) + '의 링크 열기 (새 창)">' + I.link + '</a>' : '') +
-      '</div>';
+      '<div class="ed-field"><b>링크</b><div class="ed-links"><ul>' +
+      links.map((l, n) => '<li><span class="ed-links__logo" aria-hidden="true">' + linkLogo(l.url) + '</span>' +
+        '<span' + E(o, doc, 'links.' + n + '.url', '주소 (https://…)') + '>' + esc(l.url) + '</span>' +
+        '<span' + E(o, doc, 'links.' + n + '.label', linkHint(l.url)) + '>' + esc(l.label) + '</span>' +
+        edX('mlink-del', n, '링크 삭제') + '</li>').join('') + '</ul>' +
+      edBtn('＋ 링크 추가', 'mlink-add') + '</div></div></div>';
+  } else {
+    const shown = links.map((l) => ({ url: webUrl(l.url), label: l.label })).filter((l) => l.url)
+      .map((l) => ({ url: l.url, label: l.label, logo: linkLogo(l.url), site: linkName(l.url) }));
+    const one = (l) => {
+      const a = '<a href="' + esc(l.url) + '" target="_blank" rel="noopener"';
+      if (l.logo) {
+        return '<li>' + a + ' class="p-brand" title="' + esc(l.site) + '" aria-label="' + esc(l.label ? l.label + ', ' + l.site : l.site) + ' (새 창)">' +
+          l.logo + (l.label ? '<span>' + esc(l.label) + '</span>' : '') + '</a></li>';
+      }
+      const name = l.label || l.site;
+      return '<li>' + a + ' aria-label="' + esc(name) + ' (새 창)"><span>' + esc(name) + '</span>' + I.out + '</a></li>';
+    };
+    if (m.email || shown.length) {
+      h += '<div class="p-links">' +
+        (m.email ? '<p class="p-mail"><span class="p-mail__k">e-mail</span>' +
+          '<a class="p-mail__v" href="mailto:' + esc(m.email) + '" data-copy="' + esc(m.email) + '" title="누르면 주소가 복사됩니다">' + esc(m.email) + '</a>' +
+          '<span class="p-mail__ok" role="status"></span></p>' : '') +
+        (shown.length ? '<ul class="p-linklist" aria-label="링크">' +
+          shown.filter((l) => l.logo).map(one).join('') + shown.filter((l) => !l.logo).map(one).join('') + '</ul>' : '') + '</div>';
+    }
   }
   h += '</div></div>';
 
@@ -298,14 +351,15 @@ function member(d, id, o) {
       ? '<li class="ed-tag"><span' + E(o, doc, 'skills.' + n, '분야') + '>' + esc(t) + '</span>' + edX('skill-del', n, '담당 분야 삭제') + '</li>'
       : '<li>' + esc(t) + '</li>')).join('') + '</ul>' + (ed ? edBtn('＋ 분야 추가', 'skill-add') : ''));
   }
-  /* 이력, 수상 · 자격증은 같은 모양의 줄(시기 + 내용)입니다. 시기는 '2026년 9월' 처럼 월까지 적습니다. */
-  const dated = (cls, title, key, act, rows, ph) => sec(cls, title, '<ol class="history">' +
-    rows.map((r, n) => '<li><span class="yr"' + E(o, doc, key + '.' + n + '.year', '2026년 9월') + '>' + esc(r.year) + '</span>' +
+  /* 이력, 수상 · 자격증은 같은 모양의 줄(시기 + 내용)입니다.
+     이력의 시기는 '2026.09 - 2026.10' 같은 기간으로, 수상 · 자격증은 '2026.09' 처럼 적습니다. */
+  const dated = (cls, title, key, act, rows, whenPh, ph) => sec(cls, title, '<ol class="history">' +
+    rows.map((r, n) => '<li><span class="yr"' + E(o, doc, key + '.' + n + '.year', whenPh) + '>' + esc(r.year) + '</span>' +
       '<span class="what"' + E(o, doc, key + '.' + n + '.text', ph) + '>' + esc(r.text) + '</span>' +
       (ed ? edX(act + '-del', n, title + ' 삭제') : '') + '</li>').join('') + '</ol>' +
     (ed ? edBtn('＋ ' + title + ' 추가', act + '-add') : ''));
-  if (history.length || ed) h += dated('p-history', '이력', 'history', 'hist', history, '이력 내용');
-  if (awards.length || ed) h += dated('p-awards', '수상 · 자격증', 'awards', 'award', awards, '수상 내용 또는 자격증 이름');
+  if (history.length || ed) h += dated('p-history', '이력', 'history', 'hist', history, '2026.09 - 2026.10', '이력 내용');
+  if (awards.length || ed) h += dated('p-awards', '수상 · 자격증', 'awards', 'award', awards, '2026.09', '수상 내용 또는 자격증 이름');
 
   /* 참여 프로젝트 */
   const all = d.site.projects || [];

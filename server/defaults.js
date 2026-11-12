@@ -3,7 +3,7 @@
 
 const blank = (name, role, lead) => ({
   name, role, lead: !!lead,
-  quote: '', photo: '', email: '', link: '', bio: '',
+  quote: '', photo: '', email: '', links: [], bio: '',
   skills: [], history: [], awards: [], projects: [], works: []
 });
 

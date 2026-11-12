@@ -2,7 +2,7 @@
    서버가 로그인한 팀원의 페이지에만 이 스크립트를 넣어 보냅니다.
    여기 있는 것은 편집 "화면"일 뿐입니다. 저장 요청은 서버가 매번 로그인 여부를 다시 확인하므로,
    로그인하지 않은 사람이 이 파일을 열어 보거나 실행해도 아무것도 바꿀 수 없습니다. */
-import { renderMain, renderFooter, pageTitle, esc } from '/render.js';
+import { renderMain, renderFooter, pageTitle, esc, linkLogo, linkHint } from '/render.js';
 
 const boot = JSON.parse(document.getElementById('gj-data').textContent);
 const view = boot.view;
@@ -180,6 +180,14 @@ document.addEventListener('input', (e) => {
     if (el.firstChild) el.textContent = '';   // 빈칸 안내 글자가 다시 보이도록
   }
   write(el.dataset.e, text);
+  /* 프로필 링크: 주소를 적으면 바로 그 서비스의 로고를 앞에 보여 주고, 이름 칸의 안내도 맞춰 바꿉니다. */
+  const row = /^(member:[a-z0-9-]+\|links\.\d+)\.url$/.exec(el.dataset.e);
+  const nameEl = row && document.querySelector('[data-e="' + row[1] + '.label"]');
+  if (nameEl) {
+    nameEl.dataset.ph = linkHint(text);
+    const logoEl = nameEl.parentNode.querySelector('.ed-links__logo');
+    if (logoEl) logoEl.innerHTML = linkLogo(text);
+  }
   drawBar();
 });
 
@@ -341,7 +349,7 @@ async function act(name, arg, checked) {
       const id = uid('m');
       draft.members[id] = {
         version: 0,
-        data: { name: who, role: '팀원', lead: false, quote: '', photo: '', email: '', link: '', bio: '', skills: [], history: [], awards: [], projects: [], works: [] }
+        data: { name: who, role: '팀원', lead: false, quote: '', photo: '', email: '', links: [], bio: '', skills: [], history: [], awards: [], projects: [], works: [] }
       };
       s.team.push(id);
       toast('‘저장’을 누른 뒤 카드를 눌러 프로필을 채워 주세요.');
@@ -368,6 +376,14 @@ async function act(name, arg, checked) {
     }
     case 'photo-del': if (!m) return; m.photo = ''; break;
     case 'lead': if (!m) return; m.lead = !!checked; break;
+    case 'mlink-add':
+      if (!m) return;
+      if (!m.links) m.links = [];
+      if (m.links.length >= 8) return toast('링크는 8개까지 넣을 수 있습니다.', 'error');
+      m.links.push({ label: '', url: '' });
+      focus = mdoc + '|links.' + (m.links.length - 1) + '.url';
+      break;
+    case 'mlink-del': if (!m || !m.links) return; m.links.splice(+arg, 1); break;
     case 'skill-add':
       if (!m) return;
       if (m.skills.length >= 16) return toast('담당 분야는 16개까지 넣을 수 있습니다.', 'error');
