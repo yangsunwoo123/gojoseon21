@@ -37,7 +37,8 @@
     var password = String(data.get('password') || '');
     if (!username || !password) { say('아이디와 비밀번호를 입력해 주세요.'); return; }
     return post('/api/login', { username: username, password: password }).then(function (r) {
-      if (r.ok) { location.href = '/'; return; }
+      /* 임시 비밀번호로 들어왔으면 이 화면을 다시 열어 새 비밀번호를 정하게 합니다. */
+      if (r.ok) { location.href = r.body.mustChange ? '/login' : '/'; return; }
       say(r.body.error || '로그인하지 못했습니다.');
     });
   });
@@ -50,6 +51,8 @@
     if (next !== String(data.get('again') || '')) { say('새 비밀번호가 서로 다릅니다.'); return; }
     return post('/api/password', { current: current, next: next }).then(function (r) {
       if (r.ok) {
+        /* 임시 비밀번호를 본인 비밀번호로 바꾼 직후에는 바로 편집할 수 있도록 홈으로 갑니다. */
+        if (document.getElementById('pw-form').hasAttribute('data-first')) { location.href = '/'; return; }
         document.getElementById('pw-form').reset();
         say('비밀번호를 바꿨습니다. 다른 기기에서는 다시 로그인해야 합니다.', true);
         return;

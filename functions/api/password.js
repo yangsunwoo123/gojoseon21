@@ -1,9 +1,9 @@
 import { json, fail, readJson } from '../../server/http.js';
 import { changePassword } from '../../server/auth.js';
-import { currentUser, LOGIN_REQUIRED } from '../../server/api.js';
+import { accountUser, LOGIN_REQUIRED } from '../../server/api.js';
 
 export async function onRequestPost(ctx) {
-  const user = await currentUser(ctx);
+  const user = await accountUser(ctx);
   if (!user) return fail(401, LOGIN_REQUIRED);
   const body = await readJson(ctx.request, 2000);
   if (!body) return fail(400, '요청 형식이 올바르지 않습니다.');

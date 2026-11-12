@@ -6,9 +6,15 @@ import { ValidationError } from './validate.js';
 
 export const LOGIN_REQUIRED = '로그인이 필요합니다.';
 
-/* 내용을 바꾸는 모든 요청은 여기서 로그인 여부를 다시 확인합니다. */
+/* 내용을 바꾸는 모든 요청은 여기서 로그인 여부를 다시 확인합니다.
+   임시 비밀번호로 들어와 아직 새 비밀번호를 정하지 않은 사람은 여기서 걸러집니다. */
 export function currentUser(ctx) {
   return getUser(ctx.request, ctx.env.DB);
+}
+
+/* 비밀번호 바꾸기 전용: 임시 비밀번호로 들어온 사람도 받아들입니다. 다른 곳에서는 쓰지 않습니다. */
+export function accountUser(ctx) {
+  return getUser(ctx.request, ctx.env.DB, { temp: true });
 }
 
 /* 문서 하나 저장: 로그인 확인 → 내용 검사 → 버전 확인 후 저장 */

@@ -6,5 +6,6 @@ export async function onRequestPost(ctx) {
   if (!body) return fail(400, '요청 형식이 올바르지 않습니다.');
   const r = await attemptLogin(ctx.env.DB, ctx.request, body.username, body.password);
   if (r.status !== 200) return fail(r.status, r.error);
-  return json({ ok: true, name: r.user.name }, 200, { 'Set-Cookie': sessionCookie(ctx.request, r.token) });
+  /* mustChange: 임시 비밀번호로 들어온 경우. 화면은 새 비밀번호를 정하는 곳으로 보냅니다. */
+  return json({ ok: true, name: r.user.name, mustChange: r.mustChange }, 200, { 'Set-Cookie': sessionCookie(ctx.request, r.token) });
 }

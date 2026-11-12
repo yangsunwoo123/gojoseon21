@@ -2,12 +2,17 @@
 -- 여러 번 실행해도 기존 내용은 지워지지 않습니다.
 
 -- 수정 권한이 있는 팀원 계정. scripts/users.mjs 로만 만듭니다. (사이트에 가입 기능 없음)
+-- must_change = 1 : 개발자가 정해 준 임시 비밀번호 상태. 본인이 새 비밀번호를 정하기 전에는 편집할 수 없고,
+--                   temp_until 시각이 지나면 그 임시 비밀번호로는 로그인되지 않습니다.
+-- (예전에 만든 데이터베이스에는 두 칸이 없습니다. node scripts/users.mjs migrate 로 추가합니다.)
 CREATE TABLE IF NOT EXISTS users (
-  id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  username   TEXT    NOT NULL UNIQUE,
-  name       TEXT    NOT NULL,
-  pw         TEXT    NOT NULL,   -- 비밀번호 원문이 아니라 되돌릴 수 없게 바꾼 값
-  updated_at INTEGER NOT NULL
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  username    TEXT    NOT NULL UNIQUE,
+  name        TEXT    NOT NULL,
+  pw          TEXT    NOT NULL,   -- 비밀번호 원문이 아니라 되돌릴 수 없게 바꾼 값
+  updated_at  INTEGER NOT NULL,
+  must_change INTEGER NOT NULL DEFAULT 0,
+  temp_until  INTEGER NOT NULL DEFAULT 0
 );
 
 -- 로그인 상태. 쿠키 값의 해시만 저장합니다.

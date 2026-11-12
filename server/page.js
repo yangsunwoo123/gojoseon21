@@ -11,7 +11,11 @@ export function siteOrigin(request, env) {
 
 export async function servePage(ctx, view) {
   const { request, env } = ctx;
-  const [all, user] = await Promise.all([loadAll(env.DB), getUser(request, env.DB)]);
+  /* 임시 비밀번호로 들어온 사람은 계정 화면(/login)에서만 알아보고, 다른 페이지에서는 방문자와 똑같이 다룹니다. */
+  const [all, user] = await Promise.all([
+    loadAll(env.DB),
+    getUser(request, env.DB, view.page === 'login' ? { temp: true } : undefined)
+  ]);
 
   const members = {};
   for (const id in all.members) members[id] = all.members[id].data;
@@ -35,7 +39,7 @@ export async function servePage(ctx, view) {
   /* 링크 미리보기 · 대표 주소에 쓸 사이트 주소. 나중에 자체 도메인을 붙이면
      Cloudflare 환경 변수 SITE_ORIGIN (예: https://example.com) 으로 고정할 수 있습니다. */
   const origin = siteOrigin(request, env);
-  const html = renderDocument(view, data, { user: user ? { name: user.name } : null, boot, origin });
+  const html = renderDocument(view, data, { user: user ? { name: user.name, mustChange: user.mustChange } : null, boot, origin });
   const headers = Object.assign(securityHeaders(request), {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': user || view.page === 'login' ? 'private, no-store' : 'no-cache',

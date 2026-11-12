@@ -400,6 +400,21 @@ function contact(d, o) {
 
 /* ---------- 로그인 / 계정 ---------- */
 function login(o) {
+  /* first: 임시 비밀번호로 처음 들어온 경우 (새 비밀번호를 정하면 홈으로 보냅니다) */
+  const pwForm = (first) => '<form class="form" id="pw-form"' + (first ? ' data-first' : '') + ' novalidate>' +
+    '<label>' + (first ? '임시 비밀번호' : '지금 비밀번호') + '<input type="password" name="current" autocomplete="current-password" required></label>' +
+    '<label>새 비밀번호<input type="password" name="next" autocomplete="new-password" minlength="10" required><small>10자 이상으로 정해 주세요.</small></label>' +
+    '<label>새 비밀번호 한 번 더<input type="password" name="again" autocomplete="new-password" minlength="10" required></label>' +
+    '<p class="form__msg" role="alert" hidden></p>' +
+    '<button class="btn btn--primary" type="submit">' + (first ? '비밀번호 정하기' : '비밀번호 바꾸기') + '</button></form>';
+  if (o.user && o.user.mustChange) {
+    return head('h1', 'Members', 'Account', '새 비밀번호 정하기', '', 'sec-head--page') +
+      '<div class="auth-grid">' +
+      '<div class="auth"><p class="auth__who"><b>' + esc(o.user.name) + '</b> 님, 임시 비밀번호로 로그인했습니다.</p>' +
+      '<p class="auth__hint">본인만 아는 비밀번호를 새로 정해야 편집할 수 있습니다.</p>' +
+      '<div class="btns"><button class="btn btn--ghost" type="button" id="logout">로그아웃</button></div></div>' +
+      '<div class="auth">' + pwForm(true) + '</div></div>';
+  }
   if (o.user) {
     return head('h1', 'Members', 'Account', '내 계정', '', 'sec-head--page') +
       '<div class="auth-grid">' +
@@ -407,12 +422,7 @@ function login(o) {
       '<p class="auth__hint">각 페이지 아래쪽의 ‘편집’ 버튼을 누르면 내용을 바로 고칠 수 있습니다.</p>' +
       '<div class="btns"><a class="btn btn--primary" href="/">홈에서 편집하기 ' + I.right + '</a>' +
       '<button class="btn btn--ghost" type="button" id="logout">로그아웃</button></div></div>' +
-      '<div class="auth"><h2>비밀번호 바꾸기</h2><form class="form" id="pw-form" novalidate>' +
-      '<label>지금 비밀번호<input type="password" name="current" autocomplete="current-password" required></label>' +
-      '<label>새 비밀번호<input type="password" name="next" autocomplete="new-password" minlength="10" required><small>10자 이상으로 정해 주세요.</small></label>' +
-      '<label>새 비밀번호 한 번 더<input type="password" name="again" autocomplete="new-password" minlength="10" required></label>' +
-      '<p class="form__msg" role="alert" hidden></p>' +
-      '<button class="btn btn--primary" type="submit">비밀번호 바꾸기</button></form></div></div>';
+      '<div class="auth"><h2>비밀번호 바꾸기</h2>' + pwForm(false) + '</div></div>';
   }
   return head('h1', 'Members', 'Login', '로그인', '<p>고조선 팀원 전용</p>', 'sec-head--page') +
     '<div class="auth-grid"><div class="auth auth--solo"><form class="form" id="login-form" novalidate>' +
