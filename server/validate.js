@@ -89,6 +89,28 @@ function insta(v, label, strict) {
   return s;
 }
 
+/* 시기. '2026.9', '2026-09', '2026/9', '2026년9월' 처럼 적어도 '2026년 9월' 로 맞춥니다.
+   연도만 적었거나 기간처럼 다른 모양이면 적은 그대로 둡니다. */
+function when(v, label, strict) {
+  const s = text(v, 30, label, strict);
+  const m = /^(\d{4})\s*(?:년|[.\/-])\s*(\d{1,2})\s*(?:월|\.)?$/.exec(s);
+  if (!m) return s;
+  const month = +m[2];
+  return month >= 1 && month <= 12 ? m[1] + '년 ' + month + '월' : s;
+}
+
+/* 이력, 수상 · 자격증에 쓰는 '시기 + 내용' 줄의 목록.
+   year 칸에는 시기를 적습니다. (이름은 연도만 적던 때의 것을 그대로 씁니다.) */
+function dated(v, label, strict) {
+  const rows = [];
+  for (const raw of list(v, 30, label, strict)) {
+    const r = obj(raw);
+    const row = { year: when(r.year, label + ' 시기', strict), text: text(r.text, 160, label + ' 내용', strict) };
+    if (row.year || row.text) rows.push(row);
+  }
+  return rows;
+}
+
 /* ---------- 사이트 공통 내용 ---------- */
 export function cleanSite(input, strict) {
   if (strict && (!input || typeof input !== 'object' || Array.isArray(input))) {
@@ -173,12 +195,8 @@ export function cleanMember(input, strict) {
     if (t) skills.push(t);
   }
 
-  const history = [];
-  for (const raw of list(src.history, 30, '이력', strict)) {
-    const r = obj(raw);
-    const row = { year: text(r.year, 12, '이력 연도', strict), text: text(r.text, 160, '이력 내용', strict) };
-    if (row.year || row.text) history.push(row);
-  }
+  const history = dated(src.history, '이력', strict);
+  const awards = dated(src.awards, '수상 · 자격증', strict);
 
   const projects = [];
   for (const raw of list(src.projects, 12, '참여 프로젝트', strict)) {
@@ -210,6 +228,6 @@ export function cleanMember(input, strict) {
     email: email(src.email, '이메일', strict),
     link: link(src.link, '링크', strict),
     bio: text(src.bio, 1200, '소개', strict, true),
-    skills, history, projects, works
+    skills, history, awards, projects, works
   };
 }

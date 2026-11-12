@@ -267,8 +267,9 @@ button.btn { cursor: pointer; }
   padding: 8px 14px; border: 1px solid var(--line-2); border-radius: 2px;
   font-size: 15px; font-weight: 500; line-height: 1.35;
 }
+/* 첫 칸은 '2026년 12월' 이 한 줄에 들어가는 너비입니다. */
 .history li {
-  display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 16px; align-items: baseline;
+  display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 16px; align-items: baseline;
   padding: 18px 0; border-bottom: 1px solid var(--line);
 }
 .history li:first-child { padding-top: 0; }
@@ -514,7 +515,8 @@ ul.foot-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 20px;
   .p-links .btn { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .p-sec { padding: 20px 0 52px; }
   .p-sec__body { margin-top: 16px; }
-  .history li { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 14px 0; }
+  .history li { grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding: 14px 0; }
+  .history .yr { font-size: 14px; }
   .history .what { font-size: 16px; }
   .p-proj b { font-size: 19px; }
   .works { gap: 28px 16px; }
@@ -623,7 +625,7 @@ body.editing [data-ml] { white-space: pre-wrap; }
 body.editing .p-links { flex-direction: column; align-items: stretch; gap: 12px; }
 .tags .ed-tag { display: inline-flex; align-items: center; gap: 8px; padding: 5px 5px 5px 14px; }
 .p-sec__body > .ed-btn { margin-top: 20px; }
-body.editing .history li { grid-template-columns: 96px minmax(0, 1fr) 28px; }
+body.editing .history li { grid-template-columns: 112px minmax(0, 1fr) 28px; }
 body.editing .p-proj { align-items: flex-start; }
 body.editing .work .cap { display: grid; gap: 10px; }
 body.editing .work .cap span { margin-top: 0; overflow-wrap: anywhere; }
@@ -664,7 +666,7 @@ body.editing .team-about:empty { display: block; }
   .ed-bar button, .ed-bar a { padding: 0 14px; }
   .ed-toast { bottom: 76px; }
   .ed-note { margin: -20px 0 24px; }
-  body.editing .history li { grid-template-columns: 64px minmax(0, 1fr) 28px; }
+  body.editing .history li { grid-template-columns: 92px minmax(0, 1fr) 28px; }
   body.editing .works { grid-template-columns: minmax(0, 1fr); }
   body.has-bar .site-footer .wrap { padding-bottom: 64px; }
 }

@@ -341,7 +341,7 @@ async function act(name, arg, checked) {
       const id = uid('m');
       draft.members[id] = {
         version: 0,
-        data: { name: who, role: '팀원', lead: false, quote: '', photo: '', email: '', link: '', bio: '', skills: [], history: [], projects: [], works: [] }
+        data: { name: who, role: '팀원', lead: false, quote: '', photo: '', email: '', link: '', bio: '', skills: [], history: [], awards: [], projects: [], works: [] }
       };
       s.team.push(id);
       toast('‘저장’을 누른 뒤 카드를 눌러 프로필을 채워 주세요.');
@@ -382,6 +382,14 @@ async function act(name, arg, checked) {
       focus = mdoc + '|history.' + (m.history.length - 1) + '.year';
       break;
     case 'hist-del': if (!m) return; m.history.splice(+arg, 1); break;
+    case 'award-add':
+      if (!m) return;
+      if (!m.awards) m.awards = [];
+      if (m.awards.length >= 30) return toast('수상 · 자격증은 30개까지 넣을 수 있습니다.', 'error');
+      m.awards.push({ year: '', text: '' });
+      focus = mdoc + '|awards.' + (m.awards.length - 1) + '.year';
+      break;
+    case 'award-del': if (!m || !m.awards) return; m.awards.splice(+arg, 1); break;
     case 'mproj': {
       if (!m) return;
       const i = m.projects.findIndex((r) => r.id === arg);

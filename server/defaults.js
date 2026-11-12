@@ -4,7 +4,7 @@
 const blank = (name, role, lead) => ({
   name, role, lead: !!lead,
   quote: '', photo: '', email: '', link: '', bio: '',
-  skills: [], history: [], projects: [], works: []
+  skills: [], history: [], awards: [], projects: [], works: []
 });
 
 export const DEFAULT_SITE = {

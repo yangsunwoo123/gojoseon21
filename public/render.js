@@ -260,7 +260,7 @@ function member(d, id, o) {
   const i = list.findIndex((x) => x.id === id);
   if (i < 0) return notFound('팀원을 찾을 수 없습니다.', '주소가 올바르지 않거나 삭제된 프로필입니다. 팀 페이지에서 다시 선택해 주세요.', '/team', '팀으로 돌아가기');
   const m = list[i].m, doc = 'member:' + id, ed = !!o.edit;
-  const skills = m.skills || [], history = m.history || [], works = m.works || [], joined = m.projects || [];
+  const skills = m.skills || [], history = m.history || [], awards = m.awards || [], works = m.works || [], joined = m.projects || [];
   const link = webUrl(m.link);
   const sec = (cls, title, body) => '<section class="p-sec ' + cls + '" aria-label="' + title + '">' +
     '<h2 class="p-sec__title">' + title + '</h2><div class="p-sec__body">' + body + '</div></section>';
@@ -289,7 +289,7 @@ function member(d, id, o) {
   }
   h += '</div></div>';
 
-  /* 소개 · 담당 분야 · 이력 */
+  /* 소개 · 담당 분야 · 이력 · 수상/자격증 */
   if (m.bio || ed) {
     h += sec('p-about', '소개', '<p class="ml"' + E(o, doc, 'bio', '자기소개를 두세 문장으로 적어 주세요.', true) + '>' + esc(m.bio) + '</p>');
   }
@@ -298,13 +298,14 @@ function member(d, id, o) {
       ? '<li class="ed-tag"><span' + E(o, doc, 'skills.' + n, '분야') + '>' + esc(t) + '</span>' + edX('skill-del', n, '담당 분야 삭제') + '</li>'
       : '<li>' + esc(t) + '</li>')).join('') + '</ul>' + (ed ? edBtn('＋ 분야 추가', 'skill-add') : ''));
   }
-  if (history.length || ed) {
-    h += sec('p-history', '이력', '<ol class="history">' +
-      history.map((r, n) => '<li><span class="yr"' + E(o, doc, 'history.' + n + '.year', '연도') + '>' + esc(r.year) + '</span>' +
-        '<span class="what"' + E(o, doc, 'history.' + n + '.text', '이력 내용') + '>' + esc(r.text) + '</span>' +
-        (ed ? edX('hist-del', n, '이력 삭제') : '') + '</li>').join('') + '</ol>' +
-      (ed ? edBtn('＋ 이력 추가', 'hist-add') : ''));
-  }
+  /* 이력, 수상 · 자격증은 같은 모양의 줄(시기 + 내용)입니다. 시기는 '2026년 9월' 처럼 월까지 적습니다. */
+  const dated = (cls, title, key, act, rows, ph) => sec(cls, title, '<ol class="history">' +
+    rows.map((r, n) => '<li><span class="yr"' + E(o, doc, key + '.' + n + '.year', '2026년 9월') + '>' + esc(r.year) + '</span>' +
+      '<span class="what"' + E(o, doc, key + '.' + n + '.text', ph) + '>' + esc(r.text) + '</span>' +
+      (ed ? edX(act + '-del', n, title + ' 삭제') : '') + '</li>').join('') + '</ol>' +
+    (ed ? edBtn('＋ ' + title + ' 추가', act + '-add') : ''));
+  if (history.length || ed) h += dated('p-history', '이력', 'history', 'hist', history, '이력 내용');
+  if (awards.length || ed) h += dated('p-awards', '수상 · 자격증', 'awards', 'award', awards, '수상 내용 또는 자격증 이름');
 
   /* 참여 프로젝트 */
   const all = d.site.projects || [];
