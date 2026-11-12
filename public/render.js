@@ -41,7 +41,12 @@ const I = {
   image: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="5.75" y="8.75" width="28.5" height="22.5" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="16" r="2.5" fill="currentColor"/><path d="M6 28l8.5-8 5.5 5 4.5-4.5L34 30" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
   user: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="7" r="3.4" stroke="currentColor" stroke-width="1.5"/><path d="M3.6 17c.7-3 3.2-4.8 6.4-4.8s5.7 1.8 6.4 4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   bars: '<svg class="bars" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M3 7.5h16M3 14.5h16" stroke="currentColor" stroke-width="1.6"/></svg>',
-  x: '<svg class="x" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M5 5l12 12M17 5L5 17" stroke="currentColor" stroke-width="1.6"/></svg>'
+  x: '<svg class="x" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M5 5l12 12M17 5L5 17" stroke="currentColor" stroke-width="1.6"/></svg>',
+  /* 연락처 아이콘 (명함과 같은 방식: 전화 · 카카오톡 · 인스타그램, 그리고 이메일) */
+  mail: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5.25" width="18" height="13.5" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M3.6 6.6 12 13l8.4-6.4" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  phone: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z" fill="currentColor"/></svg>',
+  talk: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.4c-5.3 0-9.6 3.3-9.6 7.4 0 2.6 1.8 4.9 4.4 6.2l-.9 3.6 4-2.6c.7.1 1.4.2 2.1.2 5.3 0 9.6-3.3 9.6-7.4S17.3 3.4 12 3.4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M5.9 9.1h2.7M7.25 9.1v3.5M9.3 12.6l1.35-3.5L12 12.6M9.8 11.6h1.7M13 9.1v3.5h1.7M15.7 9.1v3.5M17.9 9.1l-2.1 1.9 2.2 1.6" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  insta: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.3" y="3.3" width="17.4" height="17.4" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.6"/><circle cx="17.1" cy="6.9" r="1.15" fill="currentColor"/></svg>'
 };
 
 const num = (i) => String(i + 1).padStart(2, '0');
@@ -66,16 +71,14 @@ function edX(act, arg, label) {
   return '<button type="button" class="ed-x" data-act="' + act + '" data-arg="' + esc(arg) + '" aria-label="' + esc(label) + '">×</button>';
 }
 
-/* 구역 머리말: 검은 줄 + 작은 라벨(번호 · 영문) + 큰 제목 + 오른쪽 한 줄 소개 */
+/* 구역 머리말: 검은 줄 + 작은 라벨(번호 · 영문) + 큰 제목. 제목 옆의 한 줄 소개 문구는 두지 않습니다.
+   sub 는 제목 오른쪽 칸에 놓을 내용(문의의 연락처 목록, 로그인 안내)이 있을 때만 씁니다. */
 function labels(a, b) {
   return '<div class="label" aria-hidden="true"><span>' + a + '</span><span>' + b + '</span></div>';
 }
 function head(tag, no, en, title, sub, cls, id) {
   return '<div class="sec-head' + (cls ? ' ' + cls : '') + '">' + labels(no, en) +
     '<' + tag + (id ? ' id="' + id + '"' : '') + '>' + title + '</' + tag + '>' + (sub || '') + '</div>';
-}
-function subLine(o, path, ph, value) {
-  return (value || o.edit) ? '<p' + E(o, 'site', path, ph) + '>' + esc(value) + '</p>' : '';
 }
 
 /* ---------- 공통 머리말 / 꼬리말 ---------- */
@@ -204,20 +207,20 @@ function memberCards(list, o, opt) {
 /* ---------- 홈 ---------- */
 function home(d, o) {
   const s = d.site, list = teamList(d), look = {}, c = s.contact || {};
-  const hasP = s.projects.length > 0, hasT = list.length > 0, hasC = !!(c.email || c.phone);
+  const hasP = s.projects.length > 0, hasT = list.length > 0, hasC = !!(c.email || c.phone || c.kakao || c.instagram);
   const note = (text, href, label) => (o.edit
     ? '<p class="ed-note">' + text + ' <a href="' + href + '">' + label + '</a>에서 고칩니다.</p>' : '');
 
   /* 큰 문구 없이 목차(01 프로젝트, 02 팀)부터 바로 시작합니다. 맨 위 구역에만 위 여백을 줍니다. */
   return '<div class="home"><h1 class="sr-only">고조선</h1>' +
     (hasP ? '<section class="section" aria-labelledby="home-projects">' +
-      head('h2', '01', 'Projects', '프로젝트', subLine(o, 'projectsSub', '프로젝트 한 줄 소개', s.projectsSub), 'sec-head--page', 'home-projects') +
+      head('h2', '01', 'Projects', '프로젝트', '', 'sec-head--page', 'home-projects') +
       note('프로젝트 목록은', '/projects', '프로젝트 페이지') +
       '<div class="projects">' + projRows(s, look, { h: 'h3', img: true }) + '</div>' +
       '<p class="more"><a href="/projects">프로젝트 전체 보기 ' + I.right + '</a></p></section>' : '') +
 
     (hasT ? '<section class="section" aria-labelledby="home-team">' +
-      head('h2', '02', 'Team', '팀', subLine(o, 'teamSub', '팀 한 줄 소개', s.teamSub), hasP ? '' : 'sec-head--page', 'home-team') +
+      head('h2', '02', 'Team', '팀', '', hasP ? '' : 'sec-head--page', 'home-team') +
       note('팀원 목록과 프로필은', '/team', '팀 페이지') +
       '<ul class="team">' + memberCards(list, look, { h: 'h3' }) + '</ul>' +
       '<p class="more"><a href="/team">팀 소개 보기 ' + I.right + '</a></p></section>' : '') +
@@ -226,16 +229,15 @@ function home(d, o) {
 
     /* 맨 끝은 연락처로 마무리합니다. 메뉴의 세 항목(프로젝트 · 팀 · 문의)이 홈에도 같은 순서로 놓입니다. */
     (hasC ? '<section class="section" aria-labelledby="home-contact">' +
-      head('h2', '03', 'Contact', '문의', c.text ? '<p>' + esc(c.text) + '</p>' : '', '', 'home-contact') +
-      note('문의 문구와 연락처는', '/contact', '문의 페이지') +
-      '<div class="contact-rows">' + contactRows(c, look) + '</div></section>' : '') +
+      head('h2', '03', 'Contact', '문의', contactList(c, look), 'sec-head--contact', 'home-contact') +
+      note('연락처는', '/contact', '문의 페이지') + '</section>' : '') +
     '</div>';
 }
 
 /* ---------- 프로젝트 ---------- */
 function projects(d, o) {
   const s = d.site, n = s.projects.length;
-  return head('h1', '01', 'Projects', '프로젝트', subLine(o, 'projectsSub', '프로젝트 페이지 한 줄 소개', s.projectsSub), 'sec-head--page') +
+  return head('h1', '01', 'Projects', '프로젝트', '', 'sec-head--page') +
     (n || o.edit ? '<div class="projects">' + projRows(s, o, { h: 'h2', img: true, tools: true, ids: true }) + '</div>' : '') +
     (o.edit ? '<button type="button" class="ed-add" data-act="proj-add">＋ 프로젝트 추가</button>' : '') +
     (!o.edit && !n ? '<p class="empty">준비 중입니다. 곧 프로젝트를 소개하겠습니다.</p>' : '');
@@ -244,7 +246,7 @@ function projects(d, o) {
 /* ---------- 팀 ---------- */
 function team(d, o) {
   const s = d.site, list = teamList(d);
-  return head('h1', '02', 'Team', '팀', subLine(o, 'teamSub', '팀 페이지 한 줄 소개', s.teamSub), 'sec-head--page') +
+  return head('h1', '02', 'Team', '팀', '', 'sec-head--page') +
     /* 팀 소개 글: 적어 두었을 때만 보입니다. */
     ((s.teamAbout || o.edit) ? '<p class="team-about ml"' + E(o, 'site', 'teamAbout', '팀을 두세 문장으로 소개해 주세요. (비워 두면 보이지 않습니다)', true) + '>' + esc(s.teamAbout) + '</p>' : '') +
     '<ul class="team">' + memberCards(list, o, { h: 'h2', quote: true, tools: true }) +
@@ -362,22 +364,37 @@ function member(d, id, o) {
 }
 
 /* ---------- 문의 ---------- */
-/* 이메일 · 전화 줄 (문의 페이지 · 홈 공용) */
-function contactRows(c, o) {
-  const row = (en, key, ph, scheme) => {
-    if (!c[key] && !o.edit) return '';
-    return '<div class="contact-row">' + (o.edit
-      ? '<span class="contact-link"' + E(o, 'site', 'contact.' + key, ph) + '>' + esc(c[key]) + '</span>'
-      : '<a class="contact-link" href="' + scheme + esc(c[key]) + '">' + esc(c[key]) + I.out + '</a>') +
-      '<span class="label" aria-hidden="true">' + en + '</span></div>';
+/* 연락처 목록 (문의 페이지 · 홈 공용). 명함처럼 작은 아이콘과 글자를 한 줄씩 놓습니다.
+   적어 둔 항목만 보이고, 이메일 · 전화 · 인스타그램은 누르면 바로 연결됩니다.
+   카카오톡 ID 는 연결할 주소가 없어 글자로만 보여 줍니다. */
+function instaUrl(v) {
+  const id = String(v || '');
+  return /^[A-Za-z0-9._]{1,30}$/.test(id) ? 'https://www.instagram.com/' + id + '/' : '';
+}
+function contactList(c, o) {
+  const row = (icon, name, key, ph, href, out) => {
+    const v = c[key];
+    if (!v && !o.edit) return '';
+    const lead = '<span class="contact-ic" aria-hidden="true">' + icon + '</span><span class="sr-only">' + name + ' </span>';
+    if (o.edit) {
+      return '<li><span class="contact-item">' + lead +
+        '<span class="contact-val"' + E(o, 'site', 'contact.' + key, ph) + '>' + esc(v) + '</span></span></li>';
+    }
+    const val = '<span class="contact-val">' + esc(v) + '</span>';
+    return '<li>' + (href
+      ? '<a class="contact-item" href="' + esc(href) + '"' + (out ? ' target="_blank" rel="noopener"' : '') + '>' +
+        lead + val + (out ? '<span class="sr-only"> (새 창)</span>' : '') + '</a>'
+      : '<span class="contact-item">' + lead + val + '</span>') + '</li>';
   };
-  return row('Email', 'email', 'name@example.com', 'mailto:') + row('Phone', 'phone', '010-0000-0000', 'tel:');
+  const rows =
+    row(I.mail, '이메일', 'email', 'name@example.com', 'mailto:' + c.email) +
+    row(I.phone, '전화', 'phone', '010-0000-0000', 'tel:' + c.phone) +
+    row(I.talk, '카카오톡 ID', 'kakao', '카카오톡 ID') +
+    row(I.insta, '인스타그램', 'instagram', '인스타그램 아이디', instaUrl(c.instagram), true);
+  return rows ? '<ul class="contact-list">' + rows + '</ul>' : '';
 }
 function contact(d, o) {
-  const c = d.site.contact || {};
-  return '<div class="sec-head sec-head--page contact-head">' + labels('03', 'Contact') +
-    '<h1' + E(o, 'site', 'contact.text', '문의 안내 문구') + '>' + esc(c.text || (o.edit ? '' : '문의')) + '</h1></div>' +
-    '<div class="contact-rows">' + contactRows(c, o) + '</div>';
+  return head('h1', '03', 'Contact', '문의', contactList(d.site.contact || {}, o), 'sec-head--page sec-head--contact');
 }
 
 /* ---------- 로그인 / 계정 ---------- */
@@ -457,7 +474,10 @@ function pageAbout(view, d) {
     const m = d.members[view.id];
     if (m) return oneLine(m.bio || m.quote, 150) || oneLine('고조선 ' + (m.role || '') + ' ' + m.name + '의 프로필입니다.', 150);
   }
-  if (view.page === 'contact') return oneLine((s.contact || {}).text, 150) || base;
+  if (view.page === 'contact') {
+    const c = s.contact || {}, how = [c.email, c.phone].filter(Boolean);
+    return how.length ? oneLine('고조선 문의 — ' + how.join(', '), 150) : base;
+  }
   return base;
 }
 /* 글자 '<' 를 JSON 안에서 안전한 표기로 바꿀 때 씁니다. */
@@ -485,7 +505,7 @@ export function renderDocument(view, d, o) {
       const org = { '@context': 'https://schema.org', '@type': 'Organization', name: '고조선', url: o.origin + '/', logo: o.origin + '/logo.png' };
       if (c.email) org.email = c.email;
       if (c.phone) org.telephone = c.phone;
-      const sameAs = (d.site.links || []).map((l) => webUrl(l.url)).filter(Boolean);
+      const sameAs = [instaUrl(c.instagram)].concat((d.site.links || []).map((l) => webUrl(l.url))).filter(Boolean);
       if (sameAs.length) org.sameAs = sameAs;
       share += '<script type="application/ld+json">' + JSON.stringify(org).replace(/</g, LT) + '</script>\n';
     }

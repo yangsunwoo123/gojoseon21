@@ -8,8 +8,6 @@ const blank = (name, role, lead) => ({
 });
 
 export const DEFAULT_SITE = {
-  projectsSub: '고조선이 만들고 운영하는 서비스',
-  teamSub: '고조선을 만드는 사람들',
   projects: [
     {
       id: 'academy', label: '교육', name: '고조선 바이브코딩 아카데미',
@@ -23,11 +21,8 @@ export const DEFAULT_SITE = {
     }
   ],
   team: ['yang-sunwoo', 'ju-yongseok', 'park-chanseo', 'lim-dangun'],
-  contact: {
-    text: '함께 만들고 싶은 것이 있다면 편하게 연락 주세요.',
-    email: 'gojoseon21@gmail.com',
-    phone: '010-8472-6136'
-  },
+  /* 카카오톡 ID 와 인스타그램 아이디는 사이트의 문의 페이지에서 편집 모드로 적습니다. */
+  contact: { email: 'gojoseon21@gmail.com', phone: '010-8472-6136', kakao: '', instagram: '' },
   biz: { name: '고조선', ceo: '양선우', regNo: '637-53-00996', mailOrderNo: '제2026-인천연수구-2871호' }
 };
 

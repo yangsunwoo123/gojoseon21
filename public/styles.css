@@ -186,7 +186,7 @@ button.btn { cursor: pointer; }
 .proj .ed-tools { grid-column: 2 / -1; margin-top: 28px; }
 
 /* ---------- 팀 ---------- */
-/* 팀 소개 글 (적었을 때만 보임): 머리말의 한 줄 소개와 같은 칸(7번째)에서 시작 */
+/* 팀 소개 글 (적었을 때만 보임): 오른쪽 절반(7번째 칸)에서 시작 */
 .team-about {
   width: calc(50% - 12px); max-width: 30em; margin: -16px 0 64px auto;
   font-size: 18px; line-height: 1.75; color: var(--ink);
@@ -315,25 +315,18 @@ a.work:hover .cap b { color: var(--accent); }
 .pager b { display: block; font-size: 20px; font-weight: 700; line-height: 1.35; letter-spacing: -.03em; }
 
 /* ---------- 문의 ---------- */
-.contact-head { margin-bottom: 0; }
-.contact-head h1 { grid-column: 1 / 10; max-width: 13em; font-size: clamp(30px, 4.6vw, 64px); line-height: 1.22; }
-.contact-rows { margin-top: 88px; border-bottom: 1px solid var(--line); }
-.contact-row {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
-  padding: 28px 0; border-top: 1px solid var(--line);
+/* 제목 오른쪽 칸에 연락처를 명함처럼 놓습니다: 작은 아이콘 + 글자 한 줄씩 (문의 페이지 · 홈 공용) */
+.sec-head--contact { align-items: start; margin-bottom: 0; }
+.contact-list { grid-column: 7 / -1; display: grid; justify-items: start; row-gap: 4px; }
+.contact-item {
+  display: inline-flex; align-items: center; gap: 14px; min-height: 40px;
+  font-size: 19px; font-weight: 500; line-height: 1.4; letter-spacing: -.01em; transition: color .2s ease;
 }
-.contact-link {
-  display: inline-flex; align-items: center; gap: .3em; min-width: 0;
-  font-size: clamp(22px, 4.4vw, 60px); font-weight: 600; line-height: 1.2; letter-spacing: -.035em;
-  overflow-wrap: anywhere; transition: color .2s ease;
-}
-a.contact-link:hover { color: var(--accent); }
-.contact-link svg { width: .55em; height: .55em; transition: transform .2s ease; }
-a.contact-link:hover svg { transform: translate(3px, -3px); }
-.contact-row .label { flex: none; }
-/* 홈 맨 끝의 문의 구역: 구역 제목보다 작게 */
-.home .contact-rows { margin-top: 0; }
-.home .contact-link { font-size: clamp(20px, 3.3vw, 44px); }
+a.contact-item:hover { color: var(--accent); }
+.contact-ic { flex: none; display: inline-flex; }
+.contact-ic svg { width: 22px; height: 22px; }
+.contact-val { min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.sec-head--contact + .ed-note { margin: 28px 0 0; }
 
 /* ---------- 로그인 / 계정 ---------- */
 .auth-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 64px; }
@@ -448,8 +441,7 @@ ul.foot-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 20px;
   .p-sec { padding-bottom: 64px; }
   .p-sec__title, .p-sec__body { grid-column: 1 / -1; }
   .p-sec__body { margin-top: 20px; }
-  .contact-head h1 { grid-column: 1 / -1; }
-  .contact-rows { margin-top: 64px; }
+  .contact-list { grid-column: 1 / -1; margin-top: 28px; }
   .team-about { width: auto; margin: -8px 0 48px; }
   .foot-top { padding: 48px 0 44px; }
   .foot-brand { grid-column: 1 / -1; }
@@ -534,8 +526,9 @@ ul.foot-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 20px;
   .pager b { font-size: 17px; }
   .pager small { font-size: 12px; }
   .pager .all { font-size: 14px; }
-  .contact-rows { margin-top: 48px; }
-  .contact-row { padding: 20px 0; }
+  .contact-list { margin-top: 20px; }
+  .contact-item { gap: 12px; font-size: 17px; }
+  .contact-ic svg { width: 20px; height: 20px; }
   .auth-grid { row-gap: 48px; }
   .notice { margin-top: 32px; }
   .notice .label { margin-bottom: 28px; }
@@ -636,7 +629,7 @@ body.editing .work .cap { display: grid; gap: 10px; }
 body.editing .work .cap span { margin-top: 0; overflow-wrap: anywhere; }
 .work .ed-tools { margin-top: 14px; }
 .works > .ed-add { aspect-ratio: 4 / 3; min-height: 0; align-self: start; }
-body.editing .contact-link { min-width: 6em; }
+body.editing .contact-val { min-width: 9em; }
 body.editing .team-about:empty { display: block; }
 /* 꼬리말 채널 링크 편집 */
 .foot-links--edit { margin-top: 24px; font-size: 14.5px; color: var(--ink); }

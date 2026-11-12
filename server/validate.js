@@ -77,6 +77,18 @@ function phone(v, label, strict) {
   return s;
 }
 
+/* 인스타그램 아이디. '@아이디' 나 프로필 주소를 붙여 넣어도 아이디만 남깁니다. */
+function insta(v, label, strict) {
+  let s = text(v, 120, label, strict);
+  if (!s) return '';
+  s = s.replace(/^(?:https?:\/\/)?(?:www\.)?instagram\.com\//i, '').replace(/^@/, '').replace(/[/?#].*$/, '');
+  if (!/^[A-Za-z0-9._]{1,30}$/.test(s)) {
+    bad(strict, label + ': 영문, 숫자, 밑줄(_), 마침표(.)로 30자까지 적어 주세요.');
+    return '';
+  }
+  return s;
+}
+
 /* ---------- 사이트 공통 내용 ---------- */
 export function cleanSite(input, strict) {
   if (strict && (!input || typeof input !== 'object' || Array.isArray(input))) {
@@ -123,18 +135,18 @@ export function cleanSite(input, strict) {
     links.push({ label, url });
   }
 
-  /* 홈의 큰 문구는 없앴습니다. 예전에 저장된 home 값이 들어와도 여기서 버려집니다. */
+  /* 홈의 큰 문구, 제목 옆 한 줄 소개(projectsSub · teamSub), 문의 안내 문구(contact.text)는 없앴습니다.
+     예전에 저장된 값이 들어와도 여기서 버려집니다. */
   return {
-    projectsSub: text(src.projectsSub, 120, '프로젝트 페이지 소개', strict),
-    teamSub: text(src.teamSub, 120, '팀 페이지 소개', strict),
     teamAbout: text(src.teamAbout, 600, '팀 소개 글', strict, true),
     projects,
     team,
     links,
     contact: {
-      text: text(c.text, 200, '문의 안내 문구', strict),
       email: email(c.email, '문의 이메일', strict),
-      phone: phone(c.phone, '문의 전화', strict)
+      phone: phone(c.phone, '문의 전화', strict),
+      kakao: text(c.kakao, 40, '카카오톡 ID', strict),
+      instagram: insta(c.instagram, '인스타그램 아이디', strict)
     },
     biz: {
       name: text(b.name, 60, '상호', strict),
