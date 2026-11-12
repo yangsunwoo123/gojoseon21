@@ -69,6 +69,8 @@ const I = {
   out: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 13 13 5M6 5h7v7" stroke="currentColor" stroke-width="1.6"/></svg>',
   image: '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="5.75" y="8.75" width="28.5" height="22.5" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="16" r="2.5" fill="currentColor"/><path d="M6 28l8.5-8 5.5 5 4.5-4.5L34 30" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
   user: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="7" r="3.4" stroke="currentColor" stroke-width="1.5"/><path d="M3.6 17c.7-3 3.2-4.8 6.4-4.8s5.7 1.8 6.4 4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  moon: '<svg class="moon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M17 11.3A7 7 0 1 1 8.7 3a6 6 0 0 0 8.3 8.3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  sun: '<svg class="sun" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.2v2M10 15.8v2M2.2 10h2M15.8 10h2M4.5 4.5l1.4 1.4M14.1 14.1l1.4 1.4M4.5 15.5l1.4-1.4M14.1 5.9l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   bars: '<svg class="bars" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M3 7.5h16M3 14.5h16" stroke="currentColor" stroke-width="1.6"/></svg>',
   x: '<svg class="x" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M5 5l12 12M17 5L5 17" stroke="currentColor" stroke-width="1.6"/></svg>',
   /* 연락처 아이콘 (명함과 같은 방식: 전화 · 카카오톡 · 인스타그램, 그리고 이메일) */
@@ -121,6 +123,8 @@ function header(view, o) {
     '<li><a href="/contact"' + cur('contact') + '>문의</a></li>' +
     '</ul></nav>' +
     '<div class="util">' +
+    /* 화면 밝기 단추 (동작은 site.js). 밝은 화면에서는 달, 어두운 화면에서는 해가 보입니다. */
+    '<button class="util-btn theme-btn" type="button" aria-label="어둡게 보기" title="어둡게 보기">' + I.moon + I.sun + '</button>' +
     '<a class="util-btn" href="/login" aria-label="' + (o.user ? '내 계정' : '팀원 로그인') + '">' + I.user + '</a>' +
     '<button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="메뉴 열기">' + I.bars + I.x + '</button>' +
     '</div></div></header>';
@@ -579,7 +583,9 @@ export function renderDocument(view, d, o) {
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
     '<title>' + esc(title) + '</title>\n' +
     '<meta name="description" content="' + esc(about) + '">\n' +
-    '<meta name="theme-color" content="#ffffff">\n' +
+    '<meta name="color-scheme" content="light dark">\n' +
+    '<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">\n' +
+    '<meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)">\n' +
     (hidden ? '<meta name="robots" content="noindex">\n' : '') + share +
     '<link rel="icon" href="/favicon.png" type="image/png">\n' +
     '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n' +
