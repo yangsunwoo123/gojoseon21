@@ -698,6 +698,13 @@ body.editing [data-ml] { white-space: pre-wrap; }
   font-size: 15px; font-weight: 600; line-height: 1; color: var(--danger); transition: border-color .2s ease;
 }
 .ed-x:hover { border-color: var(--danger); }
+/* 줄 순서 바꾸기(↑ ↓): 삭제 단추와 같은 크기, 글자색만 본문색 */
+.ed-x--move { color: var(--ink); font-size: 14px; }
+.ed-x--move:hover { border-color: var(--ink); }
+.ed-x[disabled] { opacity: .35; cursor: default; border-color: var(--line-2); }
+/* 한 줄에 붙는 단추 묶음: 위로 · 아래로 · 삭제 (삭제는 잘못 누르지 않게 조금 띄움) */
+.ed-row { display: flex; align-items: center; gap: 4px; align-self: start; }
+.ed-row .ed-x:not(.ed-x--move) { margin-left: 6px; }
 
 /* 편집 모드에서의 배치 보정 */
 .projects + .ed-add { margin-top: 24px; }
@@ -708,7 +715,7 @@ body.editing [data-ml] { white-space: pre-wrap; }
 body.editing .p-links { justify-items: stretch; row-gap: 16px; font-size: 16px; }
 .tags .ed-tag { display: inline-flex; align-items: center; gap: 8px; padding: 5px 5px 5px 14px; }
 .p-sec__body > .ed-btn { margin-top: 20px; }
-body.editing .history li { grid-template-columns: 148px minmax(0, 1fr) 28px; }
+body.editing .history li { grid-template-columns: 148px minmax(0, 1fr) auto; }
 body.editing .p-proj { align-items: flex-start; }
 body.editing .work .cap { display: grid; gap: 10px; }
 body.editing .work .cap span { margin-top: 0; overflow-wrap: anywhere; }
@@ -758,9 +765,11 @@ body.editing .team-about:empty { display: block; }
   .ed-bar button, .ed-bar a { padding: 0 14px; }
   .ed-toast { bottom: 76px; }
   .ed-note { margin: -20px 0 24px; }
-  body.editing .history li { grid-template-columns: minmax(0, 1fr) 28px; row-gap: 10px; }
-  body.editing .history .yr, body.editing .history .what { grid-column: 1; }
-  body.editing .history .ed-x { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  /* 좁은 화면: 첫 줄에 시기와 단추 묶음, 둘째 줄에 내용을 화면 너비대로 */
+  body.editing .history li { grid-template-columns: minmax(0, 1fr) auto; row-gap: 10px; align-items: center; }
+  body.editing .history .yr { grid-column: 1; grid-row: 1; }
+  body.editing .history .ed-row { grid-column: 2; grid-row: 1; align-self: center; }
+  body.editing .history .what { grid-column: 1 / -1; grid-row: 2; }
   .ed-links ul { gap: 20px; }
   .ed-links li { display: grid; grid-template-columns: 22px minmax(0, 1fr) 28px; gap: 12px 10px; }
   .ed-links li [data-e], .ed-links li [data-e] + [data-e] { grid-column: 2; min-width: 0; overflow-wrap: anywhere; }

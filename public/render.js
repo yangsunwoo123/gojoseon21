@@ -101,6 +101,11 @@ function edBtn(label, act, arg, cls, extra) {
 function edX(act, arg, label) {
   return '<button type="button" class="ed-x" data-act="' + act + '" data-arg="' + esc(arg) + '" aria-label="' + esc(label) + '">×</button>';
 }
+/* 줄 순서 바꾸기 단추 (삭제 단추와 같은 크기). off 이면 더 갈 곳이 없는 맨 위 · 맨 아래 줄입니다. */
+function edMove(act, arg, sign, label, off) {
+  return '<button type="button" class="ed-x ed-x--move" data-act="' + act + '" data-arg="' + esc(arg) + '" aria-label="' + esc(label) + '" title="' + esc(label) + '"' +
+    (off ? ' disabled' : '') + '>' + sign + '</button>';
+}
 
 /* 구역 머리말: 검은 줄 + 작은 라벨(번호 · 영문) + 큰 제목. 제목 옆의 한 줄 소개 문구는 두지 않습니다.
    sub 는 제목 오른쪽 칸에 놓을 내용(문의의 연락처 목록, 로그인 안내)이 있을 때만 씁니다. */
@@ -356,11 +361,15 @@ function member(d, id, o) {
       : '<li>' + esc(t) + '</li>')).join('') + '</ul>' + (ed ? edBtn('＋ 분야 추가', 'skill-add') : ''));
   }
   /* 이력, 수상 · 자격증은 같은 모양의 줄(시기 + 내용)입니다.
-     이력의 시기는 '2026.09 - 2026.10' 같은 기간으로, 수상 · 자격증은 '2026.09' 처럼 적습니다. */
+     이력의 시기는 '2026.09 - 2026.10' 같은 기간으로, 수상 · 자격증은 '2026.09' 처럼 적습니다.
+     편집할 때는 줄마다 위로 · 아래로 · 삭제 단추가 붙습니다. 화면에는 적어 둔 순서 그대로 나옵니다. */
   const dated = (cls, title, key, act, rows, whenPh, ph) => sec(cls, title, '<ol class="history">' +
     rows.map((r, n) => '<li><span class="yr"' + E(o, doc, key + '.' + n + '.year', whenPh) + '>' + esc(r.year) + '</span>' +
       '<span class="what"' + E(o, doc, key + '.' + n + '.text', ph) + '>' + esc(r.text) + '</span>' +
-      (ed ? edX(act + '-del', n, title + ' 삭제') : '') + '</li>').join('') + '</ol>' +
+      (ed ? '<span class="ed-row">' +
+        edMove(act + '-move', n + ',-1', '↑', '위로 옮기기', n === 0) +
+        edMove(act + '-move', n + ',1', '↓', '아래로 옮기기', n === rows.length - 1) +
+        edX(act + '-del', n, title + ' 삭제') + '</span>' : '') + '</li>').join('') + '</ol>' +
     (ed ? edBtn('＋ ' + title + ' 추가', act + '-add') : ''));
   if (history.length || ed) h += dated('p-history', '이력', 'history', 'hist', history, '2026.09 - 2026.10', '이력 내용');
   if (awards.length || ed) h += dated('p-awards', '수상 · 자격증', 'awards', 'award', awards, '2026.09', '수상 내용 또는 자격증 이름');

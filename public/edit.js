@@ -299,6 +299,7 @@ async function act(name, arg, checked) {
   const mdoc = view.page === 'member' ? 'member:' + view.id : '';
   const m = mdoc ? docData(mdoc) : null;
   let focus = '';
+  let again = null;   // 줄을 옮긴 뒤 초점을 돌려놓을 단추: [동작, 옮겨 간 줄 번호, 방향]
 
   switch (name) {
     /* 프로젝트 */
@@ -406,6 +407,17 @@ async function act(name, arg, checked) {
       focus = mdoc + '|awards.' + (m.awards.length - 1) + '.year';
       break;
     case 'award-del': if (!m || !m.awards) return; m.awards.splice(+arg, 1); break;
+    /* 이력, 수상 · 자격증 줄을 한 칸 위나 아래로 */
+    case 'hist-move':
+    case 'award-move': {
+      if (!m) return;
+      const rows = name === 'hist-move' ? m.history : m.awards;
+      const [i, dir] = String(arg).split(',').map(Number);
+      if (!rows || !rows[i] || !rows[i + dir] || (dir !== 1 && dir !== -1)) return;
+      move(rows, i, dir);
+      again = [name, i + dir, dir];
+      break;
+    }
     case 'mproj': {
       if (!m) return;
       const i = m.projects.findIndex((r) => r.id === arg);
@@ -437,6 +449,12 @@ async function act(name, arg, checked) {
   }
   draw();
   if (focus) focusField(focus);
+  if (again) {
+    /* 옮긴 줄의 같은 단추에 초점을 둡니다. 끝에 닿아 그 단추가 꺼졌으면 반대쪽 단추에 둡니다. */
+    const pick = (d) => main.querySelector('button[data-act="' + again[0] + '"][data-arg="' + again[1] + ',' + d + '"]:not([disabled])');
+    const b = pick(again[2]) || pick(-again[2]);
+    if (b) b.focus({ preventScroll: true });
+  }
 }
 
 /* ---------- 저장 ---------- */
